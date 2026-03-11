@@ -1,6 +1,6 @@
 ﻿namespace TucBookingSystem.Client.Services
 {
-    public class AuthService
+    public class Room
     {
     }
 }
