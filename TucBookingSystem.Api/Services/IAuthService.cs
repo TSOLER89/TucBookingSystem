@@ -1,6 +1,9 @@
-﻿namespace TucBookingSystem.Api.Services
+﻿using TucBookingSystem.Api.Models;
+
+namespace TucBookingSystem.Api.Services
 {
-    public class IAuthService
+    public interface IAuthService
     {
+        Task<string?> Login(string email, string password);
     }
 }
