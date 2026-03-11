@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using TucBookingSystem.Api.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using TucBookingSystem.Api.Services;
 using TucBookingSystem.Shared.DTOs;
 
@@ -20,23 +18,25 @@ public class RoomsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<RoomDto>>> GetAll()
     {
-        return Ok(await _roomService.GetAllAsync());
+        var rooms = await _roomService.GetAllAsync();
+        return Ok(rooms);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<RoomDto>> GetById(int id)
     {
         var room = await _roomService.GetByIdAsync(id);
-        if (room is null) return NotFound();
+
+        if (room is null)
+            return NotFound();
 
         return Ok(room);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<RoomDto>> Create(CreateRoomDto dto)
     {
-        var created = await _roomService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var createdRoom = await _roomService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = createdRoom.Id }, createdRoom);
     }
 }

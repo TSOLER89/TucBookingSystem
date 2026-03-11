@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using TucBookingSystem.Api.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using TucBookingSystem.Api.Services;
-//using TucBookingSystem.Shared.DTOs;
+using TucBookingSystem.Shared.DTOs;
 
 namespace TucBookingSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class BookingsController : ControllerBase
 {
     private readonly IBookingService _bookingService;
@@ -19,24 +15,16 @@ public class BookingsController : ControllerBase
         _bookingService = bookingService;
     }
 
-    [HttpGet("my")]
-    public async Task<ActionResult<List<BookingDto>>> GetMyBookings()
+    [HttpGet("my/{userId}")]
+    public async Task<ActionResult<List<BookingDto>>> GetMyBookings(int userId)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(userIdClaim, out var userId))
-            return Unauthorized();
-
         var bookings = await _bookingService.GetUserBookingsAsync(userId);
         return Ok(bookings);
     }
 
-    [HttpPost]
-    public async Task<ActionResult> Create(CreateBookingDto dto)
+    [HttpPost("{userId}")]
+    public async Task<ActionResult> Create(int userId, CreateBookingDto dto)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(userIdClaim, out var userId))
-            return Unauthorized();
-
         var result = await _bookingService.CreateAsync(userId, dto);
 
         if (!result.Success)
