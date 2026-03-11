@@ -1,4 +1,5 @@
 ﻿using TucBookingSystem.Api.Models;
+using TucBookingSystem.Api.Repositories;
 
 namespace TucBookingSystem.Api.Services
 {
