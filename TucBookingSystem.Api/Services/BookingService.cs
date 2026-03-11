@@ -1,4 +1,4 @@
-﻿namespace TucBookingSystem.Client.Services
+﻿namespace TucBookingSystem.Api.Services
 {
     public class BookingService
     {
