@@ -1,24 +1,30 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TucBookingSystem.Api.Models
+namespace TucBookingSystem.Api.Models;
+
+public class Booking
 {
-    public class Booking
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [Required]
-        public int RoomId { get; set; }
+    [Required]
+    public int RoomId { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+    public Room? Room { get; set; }
 
-        [Required]
-        public DateTime StartTime { get; set; }
+    [Required]
+    public int UserId { get; set; }
 
-        [Required]
-        public DateTime EndTime { get; set; }
+    public User? User { get; set; }
 
-        public Room? Room { get; set; }
-        public User? User { get; set; }
-    }
+    [Required]
+    public DateOnly Date { get; set; }
+
+    [Required]
+    public TimeOnly StartTime { get; set; }
+
+    [Required]
+    public TimeOnly EndTime { get; set; }
+
+    [MaxLength(200)]
+    public string Purpose { get; set; } = string.Empty;
 }
