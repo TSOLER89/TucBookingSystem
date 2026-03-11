@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 namespace TucBookingSystem.Api.Repositories;
 
+//uppdaterat
+
 public interface IRoomRepository
 {
     Task<IEnumerable<Room>> GetAllAsync();
