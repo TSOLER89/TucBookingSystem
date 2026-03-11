@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TucBookingSystem.Api/TucBookingSystem.Api.csproj" />
+  <Project Path="TucBookingSystem.Client/TucBookingSystem.Client.csproj" />
+  <Project Path="TucBookingSystem.Shared/TucBookingSystem.Shared.csproj" />
+  <Project Path="TucBookingSystem.Tests/TucBookingSystem.Tests.csproj" />
+</Solution>
