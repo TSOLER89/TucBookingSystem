@@ -1,40 +1,69 @@
-﻿using TucBookingSystem.Api.Models;
+﻿using TucBookingSystem.Api.DTOs;
+using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
+using TucBookingSystem.Shared.DTOs;
 
-namespace TucBookingSystem.Api.Services
+namespace TucBookingSystem.Api.Services;
+
+public class RoomService : IRoomService
 {
-    public class RoomService : IRoomService
+    private readonly IRoomRepository _roomRepository;
+
+    public RoomService(IRoomRepository roomRepository)
     {
-        private readonly IRoomRepository _roomRepository;
+        _roomRepository = roomRepository;
+    }
 
-        public RoomService(IRoomRepository roomRepository)
-        {
-            _roomRepository = roomRepository;
-        }
+    public async Task<List<RoomDto>> GetAllAsync()
+    {
+        var rooms = await _roomRepository.GetAllAsync();
 
-        public async Task<IEnumerable<Room>> GetAllRoomsAsync()
+        return rooms.Select(r => new RoomDto
         {
-            return await _roomRepository.GetAllAsync();
-        }
+            Id = r.Id,
+            Name = r.Name,
+            Location = r.Location,
+            Capacity = r.Capacity,
+            Description = r.Description
+        }).ToList();
+    }
 
-        public async Task<Room?> GetRoomByIdAsync(int id)
-        {
-            return await _roomRepository.GetByIdAsync(id);
-        }
+    public async Task<RoomDto?> GetByIdAsync(int id)
+    {
+        var room = await _roomRepository.GetByIdAsync(id);
 
-        public async Task<Room> CreateRoomAsync(Room room)
-        {
-            return await _roomRepository.CreateAsync(room);
-        }
+        if (room is null)
+            return null;
 
-        public async Task<bool> UpdateRoomAsync(int id, Room room)
+        return new RoomDto
         {
-            return await _roomRepository.UpdateAsync(id, room);
-        }
+            Id = room.Id,
+            Name = room.Name,
+            Location = room.Location,
+            Capacity = room.Capacity,
+            Description = room.Description
+        };
+    }
 
-        public async Task<bool> DeleteRoomAsync(int id)
+    public async Task<RoomDto> CreateAsync(CreateRoomDto dto)
+    {
+        var room = new Room
         {
-            return await _roomRepository.DeleteAsync(id);
-        }
+            Name = dto.Name,
+            Location = dto.Location,
+            Capacity = dto.Capacity,
+            Description = dto.Description
+        };
+
+        var createdRoom = await _roomRepository.AddAsync(room);
+
+        return new RoomDto
+        {
+            Id = createdRoom.Id,
+            Name = createdRoom.Name,
+            Location = createdRoom.Location,
+            Capacity = createdRoom.Capacity,
+            Description = createdRoom.Description
+        };
     }
 }

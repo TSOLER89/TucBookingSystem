@@ -1,15 +1,10 @@
-﻿using TucBookingSystem.Api.Models;
+﻿using TucBookingSystem.Api.DTOs;
+using TucBookingSystem.Shared.DTOs;
 
-namespace TucBookingSystem.Api.Services
+namespace TucBookingSystem.Api.Services;
+
+public interface IBookingService
 {
-    public interface IBookingService
-    {
-        Task<IEnumerable<Booking>> GetAllBookingsAsync();
-
-        Task<Booking?> GetBookingByIdAsync(int id);
-
-        Task<Booking> CreateBookingAsync(Booking booking);
-
-        Task<bool> DeleteBookingAsync(int id);
-    }
+    Task<List<BookingDto>> GetUserBookingsAsync(int userId);
+    Task<(bool Success, string Message, BookingDto? Booking)> CreateAsync(int userId, CreateBookingDto dto);
 }
