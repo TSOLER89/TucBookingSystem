@@ -1,6 +1,13 @@
-﻿namespace TucBookingSystem.Api.DTOs
+using System.ComponentModel.DataAnnotations;
+
+namespace TucBookingSystem.Shared.DTOs;
+
+public class LoginRequestDto
 {
-    public class LoginRequestDto
-    {
-    }
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
 }
