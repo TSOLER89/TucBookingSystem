@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TucBookingSystem.Api.Data;
+using TucBookingSystem.Api.Data.TucBookingSystem.Api.Data;
 using TucBookingSystem.Api.Models;
 
 namespace TucBookingSystem.Api.Repositories;

@@ -21,4 +21,5 @@ public class Room
     public string Description { get; set; } = string.Empty;
 
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public bool IsActive { get; internal set; }
 }

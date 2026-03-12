@@ -2,8 +2,6 @@
 {
     using global::TucBookingSystem.Api.Models;
     using Microsoft.EntityFrameworkCore;
-    using System.Reflection.Emit;
-    using TucBookingSystem.Api.Models;
 
     namespace TucBookingSystem.Api.Data
     {
@@ -54,6 +52,11 @@
 
                     .HasForeignKey(b => b.UserId);
 
+            }
+
+            public class ApplicationUser
+            {
+                internal object? Email;
             }
         }
     }
