@@ -21,5 +21,11 @@ public class Room
     public string Description { get; set; } = string.Empty;
 
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-    public bool IsActive { get; internal set; }
+
+    //tillgängligt för bokning
+    //internal set förhindrar att egenskapen sätts utanför assembly:n.
+    public bool IsActive { get; set; } = true;
+
+    // registrerar när rummet lades till i systemet /saknades DateTime i RoomDto.
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
