@@ -15,3 +15,6 @@ namespace TucBookingSystem.Api.Services
         Task<bool> DeleteRoomAsync(int id);
     }
 }
+
+
+
