@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TucBookingSystem.Api.Data;
+using TucBookingSystem.Api.Data.TucBookingSystem.Api.Data;
 using TucBookingSystem.Api.Models;
 
 namespace TucBookingSystem.Api.Repositories;
 
 public class BookingRepository : IBookingRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly Data.TucBookingSystem.Api.Data.ApplicationDbContext _context;
 
     public BookingRepository(ApplicationDbContext context)
     {

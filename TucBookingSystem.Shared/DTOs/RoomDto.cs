@@ -7,4 +7,9 @@ public class RoomDto
     public string Location { get; set; } = string.Empty;
     public int Capacity { get; set; }
     public string Description { get; set; } = string.Empty;
+    
+    public bool IsActive { get; set; }
+
+    //registrerar när rummet lades till i systemet
+    public DateTime CreatedAt { get; set; }
 }
