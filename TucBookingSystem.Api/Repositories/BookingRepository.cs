@@ -7,8 +7,8 @@ namespace TucBookingSystem.Api.Repositories;
 
 public class BookingRepository : IBookingRepository
 {
-    private readonly Data.TucBookingSystem.Api.Data.ApplicationDbContext _context;
-
+    private readonly ApplicationDbContext _context; 
+    
     public BookingRepository(ApplicationDbContext context)
     {
         _context = context;
