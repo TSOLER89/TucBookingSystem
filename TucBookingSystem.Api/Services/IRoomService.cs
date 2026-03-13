@@ -1,20 +1,15 @@
-﻿using TucBookingSystem.Api.Models;
+﻿using TucBookingSystem.Shared.DTOs;
 
-namespace TucBookingSystem.Api.Services
+namespace TucBookingSystem.Api.Services;
+
+public interface IRoomService
+
 {
-    public interface IRoomService
-    {
-        Task<IEnumerable<Room>> GetAllRoomsAsync();
 
-        Task<Room?> GetRoomByIdAsync(int id);
+    Task<List<RoomDto>> GetAllAsync();
 
-        Task<Room> CreateRoomAsync(Room room);
+    Task<RoomDto?> GetByIdAsync(int id);
 
-        Task<bool> UpdateRoomAsync(int id, Room room);
+    Task<RoomDto> CreateAsync(CreateRoomDto dto);
 
-        Task<bool> DeleteRoomAsync(int id);
-    }
 }
-
-
-
