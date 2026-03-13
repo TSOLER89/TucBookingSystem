@@ -1,9 +1,10 @@
-﻿using TucBookingSystem.Api.Models;
-using TucBookingSystem.Api.Repositories;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TucBookingSystem.Api.Models;
+using TucBookingSystem.Api.Repositories;
+using TucBookingSystem.Shared.DTOs;
 
 namespace TucBookingSystem.Api.Services;
 
@@ -18,26 +19,62 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<string?> Login(string email, string password)
+    public async Task<UserDto?> RegisterAsync(RegisterRequestDto dto)
     {
-        var user = await _userRepository.GetByEmailAsync(email);
+        var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
 
-        if (user == null)
+        if (existingUser is not null)
             return null;
 
-        if (user.PasswordHash != password)
+        var user = new User
+        {
+            FullName = dto.FullName,
+            Email = dto.Email,
+            PasswordHash = dto.Password, // enkel version just nu
+            Role = "User"
+        };
+
+        await _userRepository.AddAsync(user);
+
+        return new UserDto
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role
+        };
+    }
+
+    public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto dto)
+    {
+        var user = await _userRepository.GetByEmailAsync(dto.Email);
+
+        if (user is null)
             return null;
 
-        return GenerateJwtToken(user);
+        if (user.PasswordHash != dto.Password)
+            return null;
+
+        var token = GenerateJwtToken(user);
+
+        return new LoginResponseDto
+        {
+            Token = token,
+            UserId = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role
+        };
     }
 
     private string GenerateJwtToken(User user)
     {
         var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.FullName),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role)
         };
@@ -46,7 +83,7 @@ public class AuthService : IAuthService
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddHours(2),
+            expires: DateTime.UtcNow.AddHours(2),
             signingCredentials: new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256)

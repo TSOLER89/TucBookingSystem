@@ -1,9 +1,9 @@
-﻿using TucBookingSystem.Api.Models;
+﻿using TucBookingSystem.Shared.DTOs;
 
-namespace TucBookingSystem.Api.Services
+namespace TucBookingSystem.Api.Services;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<string?> Login(string email, string password);
-    }
+    Task<UserDto?> RegisterAsync(RegisterRequestDto dto);
+    Task<LoginResponseDto?> LoginAsync(LoginRequestDto dto);
 }
