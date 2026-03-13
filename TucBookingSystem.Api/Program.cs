@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using TucBookingSystem.Api.Data;
-using TucBookingSystem.Api.Data.TucBookingSystem.Api.Data;
 using TucBookingSystem.Api.Repositories;
 using TucBookingSystem.Api.Services;
 
@@ -19,16 +18,16 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazor",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7001", "http://localhost:5000", "https://localhost:5001")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+    options.AddPolicy("AllowBlazor", policy =>
+    {
+        policy.WithOrigins("https://localhost:7001", "http://localhost:5000", "https://localhost:5001")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();
