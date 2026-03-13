@@ -1,12 +1,11 @@
 namespace TucBookingSystem.Shared.DTOs;
 
-public class LoginResponseDto
+public class UserDto
 {
-    // JWT token returned after successful login
-    public string Token { get; set; } = string.Empty;
-
-    public int UserId { get; set; }
+    public int Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+
+    // User role: "User" or "Admin"
     public string Role { get; set; } = string.Empty;
 }
