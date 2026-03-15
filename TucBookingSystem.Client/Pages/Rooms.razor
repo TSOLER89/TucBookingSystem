@@ -1,5 +1,66 @@
-﻿<h3>Rooms</h3>
+﻿@page "/rooms"
+@using TucBookingSystem.Shared.DTOs
+@inject TucBookingSystem.Client.Services.RoomService RoomService
+
+<h3>Rum</h3>
+
+@if (isLoading)
+{
+    <p>Laddar rum...</p>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else if (rooms.Count == 0)
+{
+    <p>Inga rum hittades.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Namn</th>
+                <th>Plats</th>
+                <th>Kapacitet</th>
+                <th>Beskrivning</th>
+                <th>Aktiv</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var room in rooms)
+            {
+                <tr>
+                    <td>@room.Name</td>
+                    <td>@room.Location</td>
+                    <td>@room.Capacity</td>
+                    <td>@room.Description</td>
+                    <td>@(room.IsActive ? "Ja" : "Nej")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+    private List<RoomDto> rooms = new();
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            rooms = await RoomService.GetRoomsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte hämta rum: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }

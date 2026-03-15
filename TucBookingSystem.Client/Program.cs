@@ -1,4 +1,5 @@
 using TucBookingSystem.Client.Components;
+using TucBookingSystem.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,9 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+var apiUrl = builder.Configuration["ApiUrl"];
 
-builder.Services.AddHttpClient();
-
+builder.Services.AddHttpClient<RoomService>(client =>
+{
+    client.BaseAddress = new Uri(apiUrl!);
+});
 
 var app = builder.Build();
 
@@ -16,12 +20,11 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
