@@ -40,10 +40,5 @@ public class RoomsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdRoom.Id }, createdRoom);
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<RoomDto>>> GetRooms()
-    {
-        var rooms = await _roomService.GetAllAsync();
-        return Ok(rooms);
-    }
+   
 }
