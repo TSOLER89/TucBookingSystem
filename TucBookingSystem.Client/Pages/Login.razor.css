@@ -1,0 +1,104 @@
+﻿.login-page {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+    .login-container h3 {
+        font-size: 42px;
+        margin-bottom: 25px;
+        color: #1d2b53;
+    }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #75787B;
+    }
+
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #D2CDC8;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+    .input-field:focus {
+        border-color: #DE2724;
+        outline: none;
+        box-shadow: 0 0 5px rgba(222,39,36,0.4);
+    }
+
+.forgot-password {
+    margin-bottom: 15px;
+}
+
+    .forgot-password a {
+        color: #DE2724;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+.login-button {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(90deg, #DE2724, #ff4b47);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+    .login-button:hover {
+        background: linear-gradient(90deg, #c51f1d, #e93a36);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        transform: translateY(-2px);
+    }
+
+.register-text {
+    margin-top: 18px;
+    text-align: center;
+    color: #75787B;
+}
+
+    .register-text a {
+        color: #DE2724;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+        .register-text a:hover {
+            text-decoration: underline;
+        }
+
+.error {
+    color: #DE2724;
+    margin-top: 10px;
+    font-size: 14px;
+}
