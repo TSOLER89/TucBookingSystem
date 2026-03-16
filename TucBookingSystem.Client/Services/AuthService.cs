@@ -23,4 +23,16 @@ public class AuthService
 
         return await response.Content.ReadFromJsonAsync<LoginResponseDto>();
     }
+
+    public async Task<UserDto?> RegisterAsync(RegisterRequestDto register)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/Auth/register", register);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<UserDto>();
+    }
 }
