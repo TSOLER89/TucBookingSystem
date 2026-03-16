@@ -1,5 +1,7 @@
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Components.Endpoints;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,9 +33,43 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 app.UseAntiforgery();
-
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+var endpointSource = app.Services.GetRequiredService<EndpointDataSource>();
+
+var duplicates = endpointSource.Endpoints
+    .OfType<RouteEndpoint>()
+    .Where(e => e.RoutePattern.RawText == "/reset-password")
+    .ToList();
+
+Console.WriteLine("=== RESET PASSWORD ENDPOINTS ===");
+foreach (var ep in duplicates)
+{
+    Console.WriteLine($"Route: {ep.RoutePattern.RawText}");
+    Console.WriteLine($"DisplayName: {ep.DisplayName}");
+    Console.WriteLine("-----");
+}
+app.MapGet("/debug/routes", (EndpointDataSource endpointSource) =>
+{
+    var routes = endpointSource.Endpoints
+        .OfType<RouteEndpoint>()
+        .Where(e => e.RoutePattern.RawText == "/reset-password")
+        .Select(e =>
+        {
+            var componentMetadata = e.Metadata.OfType<ComponentTypeMetadata>().FirstOrDefault();
+
+            return new
+            {
+                Route = e.RoutePattern.RawText,
+                DisplayName = e.DisplayName,
+                ComponentType = componentMetadata?.Type.FullName,
+                Assembly = componentMetadata?.Type.Assembly.FullName
+            };
+        })
+        .ToList();
+
+    return Results.Json(routes);
+});
 app.Run();

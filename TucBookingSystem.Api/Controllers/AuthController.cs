@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TucBookingSystem.Api.Data;
 using TucBookingSystem.Api.Models;
@@ -47,7 +48,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("forgot-password")]
     [Consumes("application/json")]
-    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto request)
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -77,14 +78,49 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             message = "Återställningslänk skapad.",
-            resetLink = resetLink
+            resetLink
         });
     }
 
-    [HttpPost("reset-password")]
+    [HttpPost("reset-password-api")]
+    [Consumes("application/json")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
     {
-        return Ok(new { message = "Test" });
+        var resetToken = await _context.PasswordResetTokens
+            .FirstOrDefaultAsync(t =>
+                t.Email == request.Email &&
+                t.Token == request.Token &&
+                !t.IsUsed &&
+                t.ExpiresAt > DateTime.UtcNow);
+
+        if (resetToken == null)
+        {
+            return BadRequest(new
+            {
+                message = "Ogiltig eller utgången token."
+            });
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+        if (user == null)
+        {
+            return BadRequest(new
+            {
+                message = "Användaren hittades inte."
+            });
+        }
+
+        var passwordHasher = new PasswordHasher<User>();
+        user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
+
+        resetToken.IsUsed = true;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Lösenordet har uppdaterats."
+        });
     }
 }
-
