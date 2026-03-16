@@ -25,21 +25,21 @@ else
             <div class="alert alert-danger">@errorMessage</div>
         }
 
-        <BookingForm BookingModel="newBooking"
-                     Rooms="rooms"
-                     StartTimeText="startTimeText"
-                     EndTimeText="endTimeText"
-                     StartTimeTextChanged="HandleStartTimeChanged"
-                     EndTimeTextChanged="HandleEndTimeChanged"
-                     OnSubmitBooking="HandleCreateBooking" />
+        <BookingForm BookingModel="@newBooking"
+                     Rooms="@rooms"
+                     StartTimeText="@startTimeText"
+                     EndTimeText="@endTimeText"
+                     StartTimeTextChanged="@HandleStartTimeChanged"
+                     EndTimeTextChanged="@HandleEndTimeChanged"
+                     OnSubmitBooking="@HandleCreateBooking" />
     </div>
 
     <hr />
 
     <div>
         <h4>Mina bokningar</h4>
-        <BookingList Bookings="bookings"
-                     OnDeleteBooking="HandleDeleteBooking" />
+        <BookingList Bookings="@bookings"
+                     OnDeleteBooking="@HandleDeleteBooking" />
     </div>
 }
 
@@ -56,8 +56,8 @@ else
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
 
-    private string startTimeText = "09:00";
-    private string endTimeText = "10:00";
+    private string startTimeText = "08:00";
+    private string endTimeText = "09:00";
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,13 +109,13 @@ else
 
         if (!TimeOnly.TryParse(startTimeText, out var startTime))
         {
-            errorMessage = "Starttid är inte korrekt. Exempel: 09:00";
+            errorMessage = "Starttid är inte korrekt. Exempel: 08:00";
             return;
         }
 
         if (!TimeOnly.TryParse(endTimeText, out var endTime))
         {
-            errorMessage = "Sluttid är inte korrekt. Exempel: 11:00";
+            errorMessage = "Sluttid är inte korrekt. Exempel: 09:00";
             return;
         }
 
@@ -137,8 +137,8 @@ else
             Date = DateOnly.FromDateTime(DateTime.Today)
         };
 
-        startTimeText = "09:00";
-        endTimeText = "10:00";
+        startTimeText = "08:00";
+        endTimeText = "09:00";
 
         bookings = await BookingService.GetMyBookingsAsync();
     }

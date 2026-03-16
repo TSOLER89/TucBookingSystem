@@ -22,20 +22,24 @@
 
     <div class="mb-3">
         <label class="form-label">Starttid</label>
-        <InputText class="form-control"
-                   Value="@StartTimeText"
-                   ValueChanged="@OnStartTimeChanged"
-                   ValueExpression="@(() => StartTimeText)"
-                   placeholder="09:00" />
+
+        <select class="form-control" value="@StartTimeText" @onchange="HandleStartTimeChanged">
+            @foreach (var time in TimeOptions)
+            {
+                <option value="@time">@time</option>
+            }
+        </select>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Sluttid</label>
-        <InputText class="form-control"
-                   Value="@EndTimeText"
-                   ValueChanged="@OnEndTimeChanged"
-                   ValueExpression="@(() => EndTimeText)"
-                   placeholder="11:00" />
+
+        <select class="form-control" value="@EndTimeText" @onchange="HandleEndTimeChanged">
+            @foreach (var time in TimeOptions)
+            {
+                <option value="@time">@time</option>
+            }
+        </select>
     </div>
 
     <div class="mb-3">
@@ -56,10 +60,10 @@
     public List<RoomDto> Rooms { get; set; } = new();
 
     [Parameter]
-    public string StartTimeText { get; set; } = "09:00";
+    public string StartTimeText { get; set; } = "08:00";
 
     [Parameter]
-    public string EndTimeText { get; set; } = "10:00";
+    public string EndTimeText { get; set; } = "09:00";
 
     [Parameter]
     public EventCallback OnSubmitBooking { get; set; }
@@ -75,15 +79,34 @@
         await OnSubmitBooking.InvokeAsync();
     }
 
-    private async Task OnStartTimeChanged(string value)
+    private async Task HandleStartTimeChanged(ChangeEventArgs e)
     {
+        var value = e.Value?.ToString() ?? "08:00";
         StartTimeText = value;
         await StartTimeTextChanged.InvokeAsync(value);
     }
 
-    private async Task OnEndTimeChanged(string value)
+    private async Task HandleEndTimeChanged(ChangeEventArgs e)
     {
+        var value = e.Value?.ToString() ?? "09:00";
         EndTimeText = value;
         await EndTimeTextChanged.InvokeAsync(value);
     }
+
+    private List<string> TimeOptions = new()
+{
+    "08:00","08:30",
+    "09:00","09:30",
+    "10:00","10:30",
+    "11:00","11:30",
+    "12:00","12:30",
+    "13:00","13:30",
+    "14:00","14:30",
+    "15:00","15:30",
+    "16:00","16:30",
+    "17:00","17:30",
+    "18:00","18:30",
+    "19:00","19:30",
+    "20:00"
+};
 }

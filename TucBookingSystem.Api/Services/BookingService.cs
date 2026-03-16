@@ -39,6 +39,9 @@ public class BookingService : IBookingService
         if (dto.Date < DateOnly.FromDateTime(DateTime.Today))
             return (false, "Du kan inte boka ett datum i det förflutna.", null);
 
+        if (dto.StartTime < new TimeOnly(8, 0) || dto.EndTime > new TimeOnly(20, 0))
+            return (false, "Bokningar måste vara mellan 08:00 och 20:00.", null);
+
         var room = await _roomRepository.GetByIdAsync(dto.RoomId);
         if (room is null)
             return (false, "Rummet finns inte.", null);
