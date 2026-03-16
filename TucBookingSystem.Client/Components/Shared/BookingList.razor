@@ -1,37 +1,93 @@
 ﻿@using TucBookingSystem.Shared.DTOs
 
-@if (Bookings == null || Bookings.Count == 0)
+@if (Bookings is null || Bookings.Count == 0)
 {
-    <p>Du har inga bokningar ännu.</p>
+    <div class="alert alert-info">
+        Du har inga bokningar ännu.
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Rum</th>
-                <th>Datum</th>
-                <th>Start</th>
-                <th>Slut</th>
-                <th>Syfte</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in Bookings)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
                 <tr>
-                    <td>@booking.RoomName</td>
-                    <td>@booking.Date.ToString("yyyy-MM-dd")</td>
-                    <td>@booking.StartTime.ToString("HH:mm")</td>
-                    <td>@booking.EndTime.ToString("HH:mm")</td>
-                    <td>@booking.Purpose</td>
+                    <th>Rum</th>
+                    <th>Datum</th>
+                    <th>Tid</th>
+                    <th>Syfte</th>
+                    <th>Status</th>
+                    <th class="text-end">Åtgärd</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var booking in SortedBookings)
+                {
+                    <tr>
+                        <td>
+                            <strong>@booking.RoomName</strong>
+                        </td>
+                        <td>
+                            @booking.Date.ToString("yyyy-MM-dd")
+                        </td>
+                        <td>
+                            @booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")
+                        </td>
+                        <td>
+                            @(string.IsNullOrWhiteSpace(booking.Purpose) ? "Inget syfte angivet" : booking.Purpose)
+                        </td>
+                        <td>
+                            @if (IsPastBooking(booking))
+                            {
+                                <span class="badge bg-secondary">Passerad</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Kommande</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-outline-danger btn-sm"
+                                    @onclick="() => DeleteClicked(booking.Id)">
+                                Avboka
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
     [Parameter]
     public List<BookingDto> Bookings { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<int> OnDeleteBooking { get; set; }
+
+    private List<BookingDto> SortedBookings =>
+        Bookings
+            .OrderBy(b => b.Date)
+            .ThenBy(b => b.StartTime)
+            .ToList();
+
+    private async Task DeleteClicked(int bookingId)
+    {
+        await OnDeleteBooking.InvokeAsync(bookingId);
+    }
+
+    private bool IsPastBooking(BookingDto booking)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var now = TimeOnly.FromDateTime(DateTime.Now);
+
+        if (booking.Date < today)
+            return true;
+
+        if (booking.Date == today && booking.EndTime < now)
+            return true;
+
+        return false;
+    }
 }
