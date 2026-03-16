@@ -1,7 +1,113 @@
-﻿@page "/"
+@page "/"
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
+<PageTitle>TUC Bokningssystem</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="hero">
+    <div class="hero-content">
+        <h1>TUC Bokningssystem</h1>
+        <p>Boka grupprum och resurser enkelt och snabbt.</p>
 
-Welcome to your new app.
+        <div class="hero-buttons">
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/bookings")'>
+                Boka rum
+            </button>
+            <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/rooms")'>
+                Visa rum
+            </button>
+        </div>
+
+        <div class="login-prompt">
+            <a href="/login" class="btn-login">Logga in / Registrera</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero {
+        background: linear-gradient(rgba(46,53,79,0.75), rgba(48,48,48,0.75)), url('/tuc.png') center/cover no-repeat;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #F9BEAE;
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .hero-content h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: #F9BEAE;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        background: #F9BEAE;
+        color: #2E354F;
+        border: none;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: #F9BEAE;
+        border: 2px solid #F9BEAE;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(249,190,174,0.1);
+    }
+
+    .btn-login {
+        background: #DE2724;
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-login:hover {
+        opacity: 0.85;
+        color: white;
+    }
+
+    .login-prompt {
+        margin-top: 1rem;
+    }
+</style>
