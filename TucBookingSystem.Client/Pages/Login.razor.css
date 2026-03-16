@@ -3,7 +3,7 @@
     margin: 120px auto;
     padding: 30px;
     border-radius: 12px;
-    background-color: white;
+    background-color: #FBD8CF;
     box-shadow: 0 6px 18px rgba(0,0,0,0.15);
 }
 
@@ -15,7 +15,7 @@
         display: block;
         margin-bottom: 6px;
         font-weight: bold;
-        color: #303030;
+        color: #75787B;
     }
 
 .input-field {
@@ -25,6 +25,15 @@
     border: 1px solid #D2CDC8;
     box-sizing: border-box;
 }
+
+.forgot-password a {
+    color: #DE2724;
+    text-decoration: none;
+}
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
 
 .login-button {
     width: 100%;
@@ -41,6 +50,22 @@
     .login-button:hover {
         background-color: #c51f1d;
     }
+
+.register-text {
+    margin-top: 16px;
+    text-align: center;
+    color: #75787B;
+}
+
+    .register-text a {
+        color: #DE2724;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+        .register-text a:hover {
+            text-decoration: underline;
+        }
 
 .error {
     color: #DE2724;
