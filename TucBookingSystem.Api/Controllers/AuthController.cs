@@ -80,4 +80,11 @@ public class AuthController : ControllerBase
             resetLink = resetLink
         });
     }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
+    {
+        return Ok(new { message = "Test" });
+    }
 }
+
