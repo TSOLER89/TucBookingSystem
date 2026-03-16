@@ -8,6 +8,7 @@
         <label class="form-label">Rum</label>
         <InputSelect class="form-control" @bind-Value="BookingModel.RoomId">
             <option value="0">Välj rum</option>
+
             @foreach (var room in Rooms)
             {
                 <option value="@room.Id">@room.Name (@room.Location)</option>
@@ -22,12 +23,20 @@
 
     <div class="mb-3">
         <label class="form-label">Starttid</label>
-        <InputText class="form-control" @bind-Value="StartTimeText" placeholder="09:00" />
+        <InputText class="form-control"
+                   Value="StartTimeText"
+                   ValueChanged="OnStartTimeChanged"
+                   ValueExpression="() => StartTimeText"
+                   placeholder="09:00" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Sluttid</label>
-        <InputText class="form-control" @bind-Value="EndTimeText" placeholder="11:00" />
+        <InputText class="form-control"
+                   Value="EndTimeText"
+                   ValueChanged="OnEndTimeChanged"
+                   ValueExpression="() => EndTimeText"
+                   placeholder="11:00" />
     </div>
 
     <div class="mb-3">
@@ -35,10 +44,13 @@
         <InputText class="form-control" @bind-Value="BookingModel.Purpose" />
     </div>
 
-    <button class="btn btn-primary" type="submit">Skapa bokning</button>
+    <button class="btn btn-primary" type="submit">
+        Skapa bokning
+    </button>
 </EditForm>
 
 @code {
+
     [Parameter]
     public CreateBookingDto BookingModel { get; set; } = new();
 
@@ -63,5 +75,17 @@
     private async Task HandleSubmit()
     {
         await OnSubmitBooking.InvokeAsync();
+    }
+
+    private async Task OnStartTimeChanged(string value)
+    {
+        StartTimeText = value;
+        await StartTimeTextChanged.InvokeAsync(value);
+    }
+
+    private async Task OnEndTimeChanged(string value)
+    {
+        EndTimeText = value;
+        await EndTimeTextChanged.InvokeAsync(value);
     }
 }
