@@ -4,73 +4,42 @@
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
 
-<h3 class="mb-4">Bokningar</h3>
-
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <h5 class="card-title">Autentisering</h5>
-        <p class="text-muted">
-            Klistra in din JWT-token från login om du vill hämta, skapa eller avboka bokningar.
-        </p>
-
-        <div class="mb-3">
-            <label class="form-label">JWT Token</label>
-            <input class="form-control"
-                   @bind="jwtToken"
-                   placeholder="Klistra in token här" />
-        </div>
-
-        <button class="btn btn-secondary" @onclick="ApplyToken">
-            Sätt token
-        </button>
-    </div>
-</div>
-
-@if (!string.IsNullOrWhiteSpace(successMessage))
-{
-    <div class="alert alert-success">@successMessage</div>
-}
-
-@if (!string.IsNullOrWhiteSpace(errorMessage))
-{
-    <div class="alert alert-danger">@errorMessage</div>
-}
+<h3>Bokningar</h3>
 
 @if (isLoading)
 {
-    <div class="alert alert-info">
-        Laddar bokningssidan...
-    </div>
+    <p>Laddar...</p>
 }
 else
 {
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h4 class="card-title mb-3">Skapa ny bokning</h4>
+    <div class="mb-4">
+        <h4>Skapa ny bokning</h4>
 
-                    <BookingForm BookingModel="newBooking"
-                                 Rooms="rooms"
-                                 StartTimeText="startTimeText"
-                                 EndTimeText="endTimeText"
-                                 StartTimeTextChanged="HandleStartTimeChanged"
-                                 EndTimeTextChanged="HandleEndTimeChanged"
-                                 OnSubmitBooking="HandleCreateBooking" />
-                </div>
-            </div>
-        </div>
+        @if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            <div class="alert alert-success">@successMessage</div>
+        }
 
-        <div class="col-lg-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h4 class="card-title mb-3">Mina bokningar</h4>
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
 
-                    <BookingList Bookings="bookings"
-                                 OnDeleteBooking="HandleDeleteBooking" />
-                </div>
-            </div>
-        </div>
+        <BookingForm BookingModel="newBooking"
+                     Rooms="rooms"
+                     StartTimeText="startTimeText"
+                     EndTimeText="endTimeText"
+                     StartTimeTextChanged="HandleStartTimeChanged"
+                     EndTimeTextChanged="HandleEndTimeChanged"
+                     OnSubmitBooking="HandleCreateBooking" />
+    </div>
+
+    <hr />
+
+    <div>
+        <h4>Mina bokningar</h4>
+        <BookingList Bookings="bookings"
+                     OnDeleteBooking="HandleDeleteBooking" />
     </div>
 }
 
@@ -83,58 +52,35 @@ else
         Date = DateOnly.FromDateTime(DateTime.Today)
     };
 
-    private bool isLoading = false;
+    private bool isLoading = true;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
 
     private string startTimeText = "09:00";
     private string endTimeText = "10:00";
-    private string jwtToken = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadRooms();
+        await LoadData();
     }
 
-    private async Task LoadRooms()
+    private async Task LoadData()
     {
+        isLoading = true;
         errorMessage = string.Empty;
 
         try
         {
-            isLoading = true;
             rooms = await RoomService.GetRoomsAsync();
+            bookings = await BookingService.GetMyBookingsAsync();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Kunde inte ladda rum: {ex.Message}";
+            errorMessage = $"Kunde inte ladda bokningssidan: {ex.Message}";
         }
         finally
         {
             isLoading = false;
-        }
-    }
-
-    private async Task ApplyToken()
-    {
-        errorMessage = string.Empty;
-        successMessage = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(jwtToken))
-        {
-            errorMessage = "Du måste klistra in en token.";
-            return;
-        }
-
-        try
-        {
-            BookingService.SetToken(jwtToken.Trim());
-            bookings = await BookingService.GetMyBookingsAsync();
-            successMessage = "Token satt. Dina bokningar hämtades.";
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Kunde inte hämta bokningar: {ex.Message}";
         }
     }
 
@@ -154,12 +100,6 @@ else
     {
         errorMessage = string.Empty;
         successMessage = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(jwtToken))
-        {
-            errorMessage = "Du måste sätta en JWT-token först.";
-            return;
-        }
 
         if (newBooking.RoomId == 0)
         {
@@ -182,60 +122,16 @@ else
         newBooking.StartTime = startTime;
         newBooking.EndTime = endTime;
 
-        try
+        var result = await BookingService.CreateBookingAsync(newBooking);
+
+        if (!result.Success)
         {
-            var result = await BookingService.CreateBookingAsync(newBooking);
-
-            if (!result.Success)
-            {
-                errorMessage = result.Message;
-                return;
-            }
-
-            successMessage = "Bokningen skapades.";
-
-            ResetBookingForm();
-
-            bookings = await BookingService.GetMyBookingsAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Kunde inte skapa bokning: {ex.Message}";
-        }
-    }
-
-    private async Task HandleDeleteBooking(int bookingId)
-    {
-        errorMessage = string.Empty;
-        successMessage = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(jwtToken))
-        {
-            errorMessage = "Du måste sätta en JWT-token först.";
+            errorMessage = result.Message;
             return;
         }
 
-        try
-        {
-            var result = await BookingService.DeleteBookingAsync(bookingId);
+        successMessage = "Bokningen skapades.";
 
-            if (!result.Success)
-            {
-                errorMessage = result.Message;
-                return;
-            }
-
-            successMessage = "Bokningen avbokades.";
-            bookings = await BookingService.GetMyBookingsAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Kunde inte avboka bokningen: {ex.Message}";
-        }
-    }
-
-    private void ResetBookingForm()
-    {
         newBooking = new CreateBookingDto
         {
             Date = DateOnly.FromDateTime(DateTime.Today)
@@ -243,5 +139,24 @@ else
 
         startTimeText = "09:00";
         endTimeText = "10:00";
+
+        bookings = await BookingService.GetMyBookingsAsync();
+    }
+
+    private async Task HandleDeleteBooking(int bookingId)
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        var result = await BookingService.DeleteBookingAsync(bookingId);
+
+        if (!result.Success)
+        {
+            errorMessage = result.Message;
+            return;
+        }
+
+        successMessage = "Bokningen avbokades.";
+        bookings = await BookingService.GetMyBookingsAsync();
     }
 }
