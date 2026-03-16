@@ -70,4 +70,38 @@ public class BookingService : IBookingService
             Purpose = created.Purpose
         });
     }
+
+    public async Task<(bool Success, string Message)> DeleteAsync(int bookingId, int userId)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(bookingId);
+
+        if (booking is null)
+            return (false, "Bokningen finns inte.");
+
+        if (booking.UserId != userId)
+            return (false, "Du får bara avboka dina egna bokningar.");
+
+        var deleted = await _bookingRepository.DeleteAsync(bookingId);
+
+        if (!deleted)
+            return (false, "Kunde inte avboka bokningen.");
+
+        return (true, "Bokningen avbokades.");
+    }
+
+    public async Task<List<BookingDto>> GetAllAsync()
+    {
+        var bookings = await _bookingRepository.GetAllAsync();
+
+        return bookings.Select(b => new BookingDto
+        {
+            Id = b.Id,
+            RoomId = b.RoomId,
+            RoomName = b.Room?.Name ?? string.Empty,
+            Date = b.Date,
+            StartTime = b.StartTime,
+            EndTime = b.EndTime,
+            Purpose = b.Purpose
+        }).ToList();
+    }
 }
