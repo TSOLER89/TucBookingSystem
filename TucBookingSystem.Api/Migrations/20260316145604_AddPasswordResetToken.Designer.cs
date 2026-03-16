@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TucBookingSystem.Api.Data;
 
@@ -10,9 +11,11 @@ using TucBookingSystem.Api.Data;
 namespace TucBookingSystem.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260316145604_AddPasswordResetToken")]
+    partial class AddPasswordResetToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
@@ -110,78 +113,6 @@ namespace TucBookingSystem.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Rooms");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Capacity = 8,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Emmalund",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Emmalund"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Capacity = 12,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Rosenkälla",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Rosenkälla"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Capacity = 4,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Roxen",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Roxen"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Capacity = 8,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Berg",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Berg"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Capacity = 6,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Ådala",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Ådala"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Capacity = 6,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Stångån",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Stångån"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Capacity = 4,
-                            CreatedAt = new DateTime(2026, 3, 16, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mötesrum Tinnerö",
-                            IsActive = true,
-                            Location = "Linköping",
-                            Name = "Tinnerö"
-                        });
                 });
 
             modelBuilder.Entity("TucBookingSystem.Api.Models.User", b =>
