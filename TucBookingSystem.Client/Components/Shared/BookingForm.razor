@@ -1,0 +1,67 @@
+﻿@using TucBookingSystem.Shared.DTOs
+
+<EditForm Model="BookingModel" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Rum</label>
+        <InputSelect class="form-control" @bind-Value="BookingModel.RoomId">
+            <option value="0">Välj rum</option>
+            @foreach (var room in Rooms)
+            {
+                <option value="@room.Id">@room.Name (@room.Location)</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Datum</label>
+        <InputDate class="form-control" @bind-Value="BookingModel.Date" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Starttid</label>
+        <InputText class="form-control" @bind-Value="StartTimeText" placeholder="09:00" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Sluttid</label>
+        <InputText class="form-control" @bind-Value="EndTimeText" placeholder="11:00" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Syfte</label>
+        <InputText class="form-control" @bind-Value="BookingModel.Purpose" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Skapa bokning</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public CreateBookingDto BookingModel { get; set; } = new();
+
+    [Parameter]
+    public List<RoomDto> Rooms { get; set; } = new();
+
+    [Parameter]
+    public string StartTimeText { get; set; } = "09:00";
+
+    [Parameter]
+    public string EndTimeText { get; set; } = "10:00";
+
+    [Parameter]
+    public EventCallback OnSubmitBooking { get; set; }
+
+    [Parameter]
+    public EventCallback<string> StartTimeTextChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> EndTimeTextChanged { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        await OnSubmitBooking.InvokeAsync();
+    }
+}

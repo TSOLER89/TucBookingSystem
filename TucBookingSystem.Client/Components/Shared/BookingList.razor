@@ -1,0 +1,37 @@
+﻿@using TucBookingSystem.Shared.DTOs
+
+@if (Bookings == null || Bookings.Count == 0)
+{
+    <p>Du har inga bokningar ännu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Rum</th>
+                <th>Datum</th>
+                <th>Start</th>
+                <th>Slut</th>
+                <th>Syfte</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Bookings)
+            {
+                <tr>
+                    <td>@booking.RoomName</td>
+                    <td>@booking.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@booking.StartTime.ToString("HH:mm")</td>
+                    <td>@booking.EndTime.ToString("HH:mm")</td>
+                    <td>@booking.Purpose</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public List<BookingDto> Bookings { get; set; } = new();
+}

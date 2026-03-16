@@ -1,5 +1,6 @@
 ﻿@page "/bookings"
 @using TucBookingSystem.Shared.DTOs
+@using TucBookingSystem.Client.Components.Shared
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
 
@@ -24,80 +25,20 @@ else
             <div class="alert alert-danger">@errorMessage</div>
         }
 
-        <EditForm Model="newBooking" OnValidSubmit="HandleCreateBooking">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="mb-3">
-                <label class="form-label">Rum</label>
-                <InputSelect class="form-control" @bind-Value="newBooking.RoomId">
-                    <option value="0">Välj rum</option>
-                    @foreach (var room in rooms)
-                    {
-                        <option value="@room.Id">@room.Name (@room.Location)</option>
-                    }
-                </InputSelect>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Datum</label>
-                <InputDate class="form-control" @bind-Value="newBooking.Date" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Starttid</label>
-                <InputText class="form-control" @bind-Value="startTimeText" placeholder="09:00" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Sluttid</label>
-                <InputText class="form-control" @bind-Value="endTimeText" placeholder="11:00" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Syfte</label>
-                <InputText class="form-control" @bind-Value="newBooking.Purpose" />
-            </div>
-
-            <button class="btn btn-primary" type="submit">Skapa bokning</button>
-        </EditForm>
+        <BookingForm BookingModel="newBooking"
+                     Rooms="rooms"
+                     StartTimeText="startTimeText"
+                     EndTimeText="endTimeText"
+                     StartTimeTextChanged="HandleStartTimeChanged"
+                     EndTimeTextChanged="HandleEndTimeChanged"
+                     OnSubmitBooking="HandleCreateBooking" />
     </div>
 
     <hr />
 
     <div>
         <h4>Mina bokningar</h4>
-
-        @if (bookings.Count == 0)
-        {
-            <p>Du har inga bokningar ännu.</p>
-        }
-        else
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Rum</th>
-                        <th>Datum</th>
-                        <th>Start</th>
-                        <th>Slut</th>
-                        <th>Syfte</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var booking in bookings)
-                    {
-                        <tr>
-                            <td>@booking.RoomName</td>
-                            <td>@booking.Date.ToString("yyyy-MM-dd")</td>
-                            <td>@booking.StartTime</td>
-                            <td>@booking.EndTime</td>
-                            <td>@booking.Purpose</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+        <BookingList Bookings="bookings" />
     </div>
 }
 
@@ -114,7 +55,7 @@ else
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
 
-    // Tillfälligt hårdkodat tills ni kopplar riktig login/JWT
+    // Tillfälligt tills riktig auth används i klienten
     private int userId = 1;
 
     private string startTimeText = "09:00";
@@ -143,6 +84,18 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private Task HandleStartTimeChanged(string value)
+    {
+        startTimeText = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleEndTimeChanged(string value)
+    {
+        endTimeText = value;
+        return Task.CompletedTask;
     }
 
     private async Task HandleCreateBooking()
@@ -180,6 +133,7 @@ else
         }
 
         successMessage = "Bokningen skapades.";
+
         newBooking = new CreateBookingDto
         {
             Date = DateOnly.FromDateTime(DateTime.Today)
