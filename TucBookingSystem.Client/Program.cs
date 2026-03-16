@@ -1,6 +1,7 @@
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +15,10 @@ builder.Services.AddHttpClient<RoomService>(client =>
     client.BaseAddress = new Uri(apiUrl!);
 });
 
+builder.Services.AddHttpClient<AuthService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7033/");
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
