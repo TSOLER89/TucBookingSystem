@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TucBookingSystem.Shared.DTOs
 {
-    internal class ForgotPasswordRequestDto
+    public class ForgotPasswordRequestDto
     {
         public string Email { get; set; } = "";
     }
