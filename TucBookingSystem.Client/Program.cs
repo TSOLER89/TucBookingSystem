@@ -1,10 +1,8 @@
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -22,11 +20,11 @@ builder.Services.AddHttpClient<BookingService>(client =>
 
 builder.Services.AddHttpClient<AuthService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7033/");
+    client.BaseAddress = new Uri(apiUrl!);
 });
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
