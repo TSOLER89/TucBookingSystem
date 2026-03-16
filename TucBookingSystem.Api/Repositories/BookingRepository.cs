@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TucBookingSystem.Api.Data;
-
 using TucBookingSystem.Api.Models;
 
 namespace TucBookingSystem.Api.Repositories;
 
 public class BookingRepository : IBookingRepository
 {
-    private readonly ApplicationDbContext _context; 
-    
+    private readonly ApplicationDbContext _context;
+
     public BookingRepository(ApplicationDbContext context)
     {
         _context = context;
@@ -31,6 +30,25 @@ public class BookingRepository : IBookingRepository
             endTime > b.StartTime);
     }
 
+    public async Task<Booking> CreateAsync(Booking booking)
+    {
+        _context.Bookings.Add(booking);
+        await _context.SaveChangesAsync();
+        return booking;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var booking = await _context.Bookings.FindAsync(id);
+
+        if (booking is null)
+            return false;
+
+        _context.Bookings.Remove(booking);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<IEnumerable<Booking>> GetAllAsync()
     {
         return await _context.Bookings
@@ -45,22 +63,5 @@ public class BookingRepository : IBookingRepository
             .Include(b => b.Room)
             .Include(b => b.User)
             .FirstOrDefaultAsync(b => b.Id == id);
-    }
-
-    public async Task<Booking> CreateAsync(Booking booking)
-    {
-        _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
-        return booking;
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var booking = await _context.Bookings.FindAsync(id);
-        if (booking == null) return false;
-
-        _context.Bookings.Remove(booking);
-        await _context.SaveChangesAsync();
-        return true;
     }
 }
