@@ -32,14 +32,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var result = await _authService.LoginAsync(dto);
-
-        if (result is null)
-            return Unauthorized("Fel e-post eller lösenord.");
-
-        return Ok(result);
+        var response = await _authService.LoginAsync(dto);
+        if (response == null)
+            return Unauthorized();
+        return Ok(response);
     }
 }
