@@ -15,6 +15,11 @@ builder.Services.AddHttpClient<RoomService>(client =>
     client.BaseAddress = new Uri(apiUrl!);
 });
 
+builder.Services.AddHttpClient<BookingService>(client =>
+{
+    client.BaseAddress = new Uri(apiUrl!);
+});
+
 builder.Services.AddHttpClient<AuthService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7033/");
