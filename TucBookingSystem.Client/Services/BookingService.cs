@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using TucBookingSystem.Shared.DTOs;
 
 namespace TucBookingSystem.Client.Services;
@@ -11,12 +10,6 @@ public class BookingService
     public BookingService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-    }
-
-    public void SetToken(string token)
-    {
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
     }
 
     public async Task<List<BookingDto>> GetMyBookingsAsync()
