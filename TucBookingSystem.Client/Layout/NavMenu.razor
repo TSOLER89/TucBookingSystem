@@ -1,3 +1,5 @@
+@inject NavigationManager Nav
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">TUC Bokningssystem</a>
@@ -10,20 +12,39 @@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="nav-icon">🏠</span> Home
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="bookings">
-                <span class="bi bi-calendar-nav-menu" aria-hidden="true"></span> Bokningar
+                <span class="nav-icon">📅</span> Bokningar
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="rooms">
-                <span class="bi bi-door-open-nav-menu" aria-hidden="true"></span> Rum
+                <span class="nav-icon">🚪</span> Rum
             </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin">
+                <span class="nav-icon">⚙️</span> Admin
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 logout-item">
+            <button class="nav-link logout-btn" @onclick="Logout">
+                <span class="nav-icon">🔓</span> Logga ut
+            </button>
         </div>
     </nav>
 </div>
+
+@code {
+    private void Logout()
+    {
+        Nav.NavigateTo("/login");
+    }
+}
