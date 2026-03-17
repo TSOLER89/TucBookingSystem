@@ -2,40 +2,42 @@
 
 @if (Bookings == null || Bookings.Count == 0)
 {
-    <p>Du har inga bokningar ännu.</p>
+    <p class="booking-empty-text">Du har inga bokningar ännu.</p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Rum</th>
-                <th>Datum</th>
-                <th>Start</th>
-                <th>Slut</th>
-                <th>Syfte</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in Bookings)
-            {
+    <div class="booking-table-wrapper">
+        <table class="booking-table">
+            <thead>
                 <tr>
-                    <td>@booking.RoomName</td>
-                    <td>@booking.Date.ToString("yyyy-MM-dd")</td>
-                    <td>@booking.StartTime.ToString("HH:mm")</td>
-                    <td>@booking.EndTime.ToString("HH:mm")</td>
-                    <td>@booking.Purpose</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm"
-                                @onclick="() => DeleteClicked(booking.Id)">
-                            Avboka
-                        </button>
-                    </td>
+                    <th>Rum</th>
+                    <th>Datum</th>
+                    <th>Start</th>
+                    <th>Slut</th>
+                    <th>Syfte</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var booking in Bookings)
+                {
+                    <tr>
+                        <td>@booking.RoomName</td>
+                        <td>@booking.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@booking.StartTime.ToString("HH:mm")</td>
+                        <td>@booking.EndTime.ToString("HH:mm")</td>
+                        <td>@booking.Purpose</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm"
+                                    @onclick="() => DeleteClicked(booking.Id)">
+                                Avboka
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
