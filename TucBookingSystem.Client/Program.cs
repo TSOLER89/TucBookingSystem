@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.Components.Endpoints;
+using Microsoft.AspNetCore.Routing;
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
 using TucBookingSystem.Shared.Interfaces;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Components.Endpoints;
 
 public partial class Program
 {
@@ -23,11 +23,16 @@ public partial class Program
             client.BaseAddress = new Uri(apiUrl!);
         });
 
+        builder.Services.AddScoped(sp =>
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"));
+
         // -----------------------------------------
         // Registrera dina services med interfaces
         // -----------------------------------------
-        builder.Services.AddScoped<IRoomService, RoomService>();
-        builder.Services.AddScoped<IBookingService, BookingService>();
+        builder.Services.AddScoped<RoomService>();
+        builder.Services.AddScoped<BookingService>();
+        builder.Services.AddScoped<IRoomService>(sp => sp.GetRequiredService<RoomService>());
+        builder.Services.AddScoped<IBookingService>(sp => sp.GetRequiredService<BookingService>());
         builder.Services.AddScoped<AuthService>();
 
         var app = builder.Build();

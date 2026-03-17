@@ -1,9 +1,10 @@
 ﻿using System.Net.Http.Json;
 using TucBookingSystem.Shared.DTOs;
+using TucBookingSystem.Shared.Interfaces;
 
 namespace TucBookingSystem.Client.Services;
 
-public class RoomService
+public class RoomService : IRoomService
 {
     private readonly HttpClient _httpClient;
 
@@ -12,19 +13,42 @@ public class RoomService
         _httpClient = httpClient;
     }
 
-    public async Task<List<RoomDto>> GetRoomsAsync()
+    public Task<List<RoomDto>> GetRoomsAsync()
+    {
+        return GetAllAsync();
+    }
+
+    public async Task<List<RoomDto>> GetAllAsync()
     {
         var rooms = await _httpClient.GetFromJsonAsync<List<RoomDto>>("api/rooms");
         return rooms ?? new List<RoomDto>();
     }
 
+    public async Task<RoomDto?> GetByIdAsync(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<RoomDto>($"api/rooms/{id}");
+    }
+
     public async Task<RoomDto?> CreateRoomAsync(CreateRoomDto dto)
+    {
+        try
+        {
+            return await CreateAsync(dto);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<RoomDto> CreateAsync(CreateRoomDto dto)
     {
         var response = await _httpClient.PostAsJsonAsync("api/rooms", dto);
 
         if (!response.IsSuccessStatusCode)
-            return null;
+            throw new HttpRequestException($"Kunde inte skapa rum. Statuskod: {response.StatusCode}");
 
-        return await response.Content.ReadFromJsonAsync<RoomDto>();
+        return await response.Content.ReadFromJsonAsync<RoomDto>()
+            ?? throw new InvalidOperationException("API returnerade inget rum.");
     }
 }
