@@ -1,4 +1,7 @@
+@using TucBookingSystem.Client.Services
+@inject UserStateService UserState
 @inject NavigationManager Nav
+@implements IDisposable
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -43,8 +46,31 @@
 </div>
 
 @code {
-    private void Logout()
+    private bool _hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Nav.NavigateTo("/login");
+        if (firstRender && !_hasLoaded)
+        {
+            await UserState.LoadStateAsync();
+            _hasLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        UserState.OnChange += StateHasChanged;
+    }
+
+    private async void Logout()
+    {
+        await UserState.LogoutAsync();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
     }
 }

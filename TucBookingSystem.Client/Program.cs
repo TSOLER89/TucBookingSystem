@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddScoped<UserStateService>();
+
 var apiUrl = builder.Configuration["ApiUrl"];
 
 builder.Services.AddHttpClient<RoomService>(client =>
