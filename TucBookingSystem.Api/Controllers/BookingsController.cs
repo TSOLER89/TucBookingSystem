@@ -66,7 +66,7 @@ public class BookingsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<List<BookingDto>>> GetAll()
     {
-        var bookings = await _bookingService.GetAllAsync();
+        var bookings = await _bookingService.GetAllBookings();
         return Ok(bookings);
     }
 }

@@ -14,7 +14,25 @@ public class BookingService : IBookingService
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
     }
-
+    public async Task<List<BookingDto>> GetAllBookingsAsync()
+    {
+        var bookings = await _bookingRepository.GetAllAsync();
+ 
+    {
+    }
+  
+        return bookings.Select(b => new BookingDto
+        {
+            Id = b.Id,
+            RoomId = b.RoomId,
+            RoomName = b.Room?.Name ?? string.Empty,
+            Date = b.Date,
+            StartTime = b.StartTime,
+            EndTime = b.EndTime,
+            Purpose = b.Purpose
+           
+        }).ToList();
+    }
     public async Task<List<BookingDto>> GetUserBookingsAsync(int userId)
     {
         var bookings = await _bookingRepository.GetUserBookingsAsync(userId);
@@ -96,6 +114,20 @@ public class BookingService : IBookingService
     {
         var bookings = await _bookingRepository.GetAllAsync();
 
+        return bookings.Select(b => new BookingDto
+        {
+            Id = b.Id,
+            RoomId = b.RoomId,
+            RoomName = b.Room?.Name ?? string.Empty,
+            Date = b.Date,
+            StartTime = b.StartTime,
+            EndTime = b.EndTime,
+            Purpose = b.Purpose
+        }).ToList();
+    }
+        public async Task<List<BookingDto>> GetAllBookings()
+    {
+        var bookings = await _bookingRepository.GetAllAsync();
         return bookings.Select(b => new BookingDto
         {
             Id = b.Id,

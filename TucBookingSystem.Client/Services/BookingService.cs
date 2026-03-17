@@ -3,7 +3,7 @@ using TucBookingSystem.Shared.DTOs;
 
 namespace TucBookingSystem.Client.Services;
 
-public class BookingService
+public class BookingService : IBookingService
 {
     private readonly HttpClient _httpClient;
 
@@ -12,13 +12,23 @@ public class BookingService
         _httpClient = httpClient;
     }
 
-    public async Task<List<BookingDto>> GetMyBookingsAsync()
+    public Task<List<BookingDto>> GetMyBookingsAsync()
+    {
+        return GetUserBookingsAsync(0);
+    }
+
+    public async Task<List<BookingDto>> GetUserBookingsAsync(int userId)
     {
         var bookings = await _httpClient.GetFromJsonAsync<List<BookingDto>>("api/bookings/my");
         return bookings ?? new List<BookingDto>();
     }
 
-    public async Task<(bool Success, string Message, BookingDto? Booking)> CreateBookingAsync(CreateBookingDto dto)
+    public Task<(bool Success, string Message, BookingDto? Booking)> CreateBookingAsync(CreateBookingDto dto)
+    {
+        return CreateAsync(0, dto);
+    }
+
+    public async Task<(bool Success, string Message, BookingDto? Booking)> CreateAsync(int userId, CreateBookingDto dto)
     {
         var response = await _httpClient.PostAsJsonAsync("api/bookings", dto);
 
@@ -32,7 +42,12 @@ public class BookingService
         return (true, "Bokning skapad.", booking);
     }
 
-    public async Task<(bool Success, string Message)> DeleteBookingAsync(int bookingId)
+    public Task<(bool Success, string Message)> DeleteBookingAsync(int bookingId)
+    {
+        return DeleteAsync(bookingId, 0);
+    }
+
+    public async Task<(bool Success, string Message)> DeleteAsync(int bookingId, int userId)
     {
         var response = await _httpClient.DeleteAsync($"api/bookings/{bookingId}");
 
@@ -44,5 +59,11 @@ public class BookingService
 
         var message = await response.Content.ReadAsStringAsync();
         return (true, message);
+    }
+
+    public async Task<List<BookingDto>> GetAllBookings()
+    {
+        var bookings = await _httpClient.GetFromJsonAsync<List<BookingDto>>("api/bookings");
+        return bookings ?? new List<BookingDto>();
     }
 }

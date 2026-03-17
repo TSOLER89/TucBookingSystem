@@ -1,5 +1,180 @@
-﻿<h3>Admin</h3>
+﻿@page "/admin"
+@using TucBookingSystem.Shared.DTOs
+@using TucBookingSystem.Client.Components.Shared
+@using Microsoft.AspNetCore.Authorization
+@using TucBookingSystem.Client.Services
+
+@inject IBookingService BookingService
+@inject IRoomService RoomService
+
+@* @attribute [Authorize(Roles = "Admin")] *@
+
+<PageTitle>Admin Sida</PageTitle>
+
+<div class="booking-page">
+    <h3 class="booking-title">Admin - Hantera alla bokningar</h3>
+
+    @if (isLoading)
+    {
+        <div class="booking-card">
+            <p class="booking-loading">Laddar bokningar...</p>
+        </div>
+    }
+    else
+    {
+        <!-- SKAPA BOKNING -->
+        <div class="booking-card">
+            <h4 class="booking-subtitle">Skapa ny bokning</h4>
+
+            @if (!string.IsNullOrWhiteSpace(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <BookingForm BookingModel="@newBooking"
+                         Rooms="@rooms"
+                         StartTimeText="@startTimeText"
+                         EndTimeText="@endTimeText"
+                         StartTimeTextChanged="@HandleStartTimeChanged"
+                         EndTimeTextChanged="@HandleEndTimeChanged"
+                         OnSubmitBooking="@HandleCreateBooking" />
+        </div>
+
+        <!-- LISTA BOKNINGAR -->
+        <div class="booking-card mt-4">
+            <h4 class="booking-subtitle">Alla bokningar</h4>
+
+            <BookingList Bookings="@bookings"
+                         OnDeleteBooking="@HandleDeleteBooking" />
+        </div>
+    }
+</div>
 
 @code {
+    private List<RoomDto> rooms = new();
+    private List<BookingDto> bookings = new();
 
+    private CreateBookingDto newBooking = new()
+    {
+        Date = DateOnly.FromDateTime(DateTime.Today)
+    };
+
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    private string startTimeText = "08:00";
+    private string endTimeText = "09:00";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            rooms = await RoomService.GetAllAsync();
+            bookings = await BookingService.GetAllBookings();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte ladda bokningssidan: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task HandleStartTimeChanged(string value)
+    {
+        startTimeText = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleEndTimeChanged(string value)
+    {
+        endTimeText = value;
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleCreateBooking()
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        if (newBooking.RoomId == 0)
+        {
+            errorMessage = "Du måste välja ett rum.";
+            return;
+        }
+
+        if (!TimeOnly.TryParse(startTimeText, out var startTime))
+        {
+            errorMessage = "Starttid är inte korrekt. Exempel: 08:00";
+            return;
+        }
+
+        if (!TimeOnly.TryParse(endTimeText, out var endTime))
+        {
+            errorMessage = "Sluttid är inte korrekt. Exempel: 09:00";
+            return;
+        }
+
+        newBooking.StartTime = startTime;
+        newBooking.EndTime = endTime;
+
+        // ⚠️ TEMP userId (ska senare komma från auth)
+        var userId = 1;
+
+        var result = await BookingService.CreateAsync(userId, newBooking);
+
+        if (!result.Success)
+        {
+            errorMessage = result.Message;
+            return;
+        }
+
+        successMessage = "Bokningen skapades.";
+
+        newBooking = new CreateBookingDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today)
+        };
+
+        startTimeText = "08:00";
+        endTimeText = "09:00";
+
+        bookings = await BookingService.GetAllBookings();
+    }
+
+    private async Task HandleDeleteBooking(int bookingId)
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        // ⚠️ TEMP userId
+        var userId = 1;
+
+        var result = await BookingService.DeleteAsync(bookingId, userId);
+
+        if (!result.Success)
+        {
+            errorMessage = result.Message;
+            return;
+        }
+
+        successMessage = "Bokningen avbokades.";
+        bookings = await BookingService.GetAllBookings();
+    }
 }
