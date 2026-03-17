@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Endpoints;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Routing;
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
@@ -33,6 +34,8 @@ public partial class Program
         builder.Services.AddScoped<IRoomService>(sp => sp.GetRequiredService<RoomService>());
         builder.Services.AddScoped<IBookingService>(sp => sp.GetRequiredService<BookingService>());
         builder.Services.AddScoped<AuthService>();
+        builder.Services.AddScoped<ProtectedSessionStorage>();
+        builder.Services.AddScoped<UserStateService>();
 
         var app = builder.Build();
 
