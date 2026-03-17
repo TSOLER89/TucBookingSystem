@@ -14,11 +14,13 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly ApplicationDbContext _context;
+    private readonly IEmailService _emailService;
 
-    public AuthController(IAuthService authService, ApplicationDbContext context)
+    public AuthController(IAuthService authService, ApplicationDbContext context, IEmailService emailService)
     {
         _authService = authService;
         _context = context;
+        _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -52,10 +54,10 @@ public class AuthController : ControllerBase
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
         {
+            // Returnera samma meddelande även om användaren inte finns (säkerhetsåtgärd)
             return Ok(new
             {
-                message = "Om e-postadressen finns i systemet skickas en återställningslänk.",
-                resetLink = ""  
+                message = "Om e-postadressen finns i systemet har ett e-postmeddelande skickats."
             });
         }       
 
@@ -74,10 +76,20 @@ public class AuthController : ControllerBase
 
         var resetLink = $"https://localhost:7116/reset-password?token={token}&email={request.Email}";
 
+        // Skicka e-post med återställningslänk
+        try
+        {
+            await _emailService.SendPasswordResetEmailAsync(request.Email, resetLink);
+        }
+        catch (Exception ex)
+        {
+            // Logga felet men returnera inte felmeddelande till användaren av säkerhetsskäl
+            Console.WriteLine($"Error sending email: {ex.Message}");
+        }
+
         return Ok(new
         {
-            message = "Återställningslänk skapad.",
-            resetLink = resetLink
+            message = "Om e-postadressen finns i systemet har ett e-postmeddelande skickats."
         });
     }
 
