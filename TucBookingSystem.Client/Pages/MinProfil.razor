@@ -1,0 +1,89 @@
+@page "/min-profil"
+@rendermode InteractiveServer
+@using TucBookingSystem.Client.Services
+@inject UserStateService UserState
+@inject NavigationManager Nav
+
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <span class="avatar-initial">@GetInitials()</span>
+            </div>
+            <h2>Välkommen, @GetFirstName()!</h2>
+            <p class="user-email">@UserEmail</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>Min Information</h3>
+            <div class="info-item">
+                <label>Namn:</label>
+                <span>@UserFullName</span>
+            </div>
+            <div class="info-item">
+                <label>E-post:</label>
+                <span>@UserEmail</span>
+            </div>
+            <div class="info-item">
+                <label>Roll:</label>
+                <span class="role-badge">@UserRole</span>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="/bookings" class="action-button">
+                Mina Bokningar
+            </a>
+            <a href="/rooms" class="action-button">
+                Boka Rum
+            </a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool _hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hasLoaded)
+        {
+            await UserState.LoadStateAsync();
+            _hasLoaded = true;
+
+            if (!UserState.IsLoggedIn)
+            {
+                Nav.NavigateTo("/login");
+            }
+            else
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    private string GetFirstName()
+    {
+        if (string.IsNullOrEmpty(UserState.FullName))
+            return "Användare";
+
+        var parts = UserState.FullName.Split(' ');
+        return parts[0];
+    }
+
+    private string GetInitials()
+    {
+        if (string.IsNullOrEmpty(UserState.FullName))
+            return "U";
+
+        var parts = UserState.FullName.Split(' ');
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+
+        return parts[0][0].ToString().ToUpper();
+    }
+
+    private string UserFullName => UserState.FullName;
+    private string UserEmail => UserState.Email;
+    private string UserRole => UserState.Role;
+}

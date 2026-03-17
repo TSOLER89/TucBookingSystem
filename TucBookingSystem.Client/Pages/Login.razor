@@ -3,6 +3,7 @@
 @using TucBookingSystem.Shared.DTOs
 @using TucBookingSystem.Client.Services
 @inject AuthService AuthService
+@inject UserStateService UserState
 @inject NavigationManager Nav
 
 <div class="login-page">
@@ -51,15 +52,23 @@
     {
         errorMessage = "";
 
-        var result = await AuthService.LoginAsync(loginModel);
+        try
+        {
+            var result = await AuthService.LoginAsync(loginModel);
 
-        if (result != null)
-        {
-            Nav.NavigateTo("/");
+            if (result != null)
+            {
+                await UserState.SetUserAsync(result.UserId, result.FullName, result.Email, result.Role);
+                Nav.NavigateTo("/min-profil");
+            }
+            else
+            {
+                errorMessage = "Fel e-post eller lösenord.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorMessage = "Fel e-post eller lösenord.";
+            errorMessage = $"Ett fel uppstod: {ex.Message}";
         }
     }
 }
