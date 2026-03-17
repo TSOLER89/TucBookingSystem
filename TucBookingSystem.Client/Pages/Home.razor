@@ -1,4 +1,8 @@
 @page "/"
+@rendermode InteractiveServer
+@using TucBookingSystem.Client.Services
+@inject UserStateService UserState
+@implements IDisposable
 
 <PageTitle>TUC Bokningssystem</PageTitle>
 
@@ -17,11 +21,45 @@
             </NavLink>
         </div>
 
-        <div class="login-prompt">
-            <NavLink href="/login" class="btn-login">Logga in / Registrera</NavLink>
-        </div>
+        @if (UserState.IsLoggedIn)
+        {
+            <div class="welcome-message">
+                <p>Välkommen, @UserState.FullName!</p>
+                <NavLink href="/min-profil" class="btn-profile">Min Profil</NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="login-prompt">
+                <NavLink href="/login" class="btn-login">Logga in / Registrera</NavLink>
+            </div>
+        }
     </div>
 </div>
+
+@code {
+    private bool _hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hasLoaded)
+        {
+            await UserState.LoadStateAsync();
+            _hasLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        UserState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
+    }
+}
 
 <style>
     .hero {
@@ -117,4 +155,34 @@
     .login-prompt {
         margin-top: 1rem;
     }
+
+    .welcome-message {
+        margin-top: 1rem;
+        color: white;
+    }
+
+        .welcome-message p {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #F9BEAE;
+        }
+
+    .btn-profile {
+        background: #F9BEAE;
+        color: #2E354F;
+        border: none;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-profile:hover {
+            opacity: 0.9;
+            color: #2E354F;
+        }
 </style>

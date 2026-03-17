@@ -53,32 +53,20 @@
 
         try
         {
-            Console.WriteLine($"Attempting login with email: {loginModel.Email}");
-
             var result = await AuthService.LoginAsync(loginModel);
-
-            Console.WriteLine($"Login result: {(result != null ? "Success" : "Failed")}");
 
             if (result != null)
             {
-                Console.WriteLine($"User logged in: {result.FullName}");
                 await UserState.SetUserAsync(result.UserId, result.FullName, result.Email, result.Role);
-                Console.WriteLine("State saved, waiting a moment before navigation...");
-
-                await Task.Delay(100);
-
-                Console.WriteLine("Navigating to min-profil...");
                 Nav.NavigateTo("/min-profil");
             }
             else
             {
                 errorMessage = "Fel e-post eller lösenord.";
-                Console.WriteLine("Login failed: Invalid credentials");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Login exception: {ex.Message}");
             errorMessage = $"Ett fel uppstod: {ex.Message}";
         }
     }

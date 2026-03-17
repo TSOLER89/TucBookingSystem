@@ -48,21 +48,15 @@
     {
         if (firstRender && !_hasLoaded)
         {
-            Console.WriteLine("MinProfil: Loading state after render...");
             await UserState.LoadStateAsync();
-
-            Console.WriteLine($"MinProfil: IsLoggedIn = {UserState.IsLoggedIn}, FullName = {UserState.FullName}");
-
             _hasLoaded = true;
 
             if (!UserState.IsLoggedIn)
             {
-                Console.WriteLine("MinProfil: Not logged in, redirecting to login");
                 Nav.NavigateTo("/login");
             }
             else
             {
-                Console.WriteLine("MinProfil: User is logged in!");
                 StateHasChanged();
             }
         }
