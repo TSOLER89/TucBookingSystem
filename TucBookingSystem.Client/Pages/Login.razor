@@ -11,8 +11,7 @@
 
         <h3>Login</h3>
 
-        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
-            <DataAnnotationsValidator />        
+        <EditForm Model="loginModel" OnSubmit="HandleLogin">
 
             <div class="form-group">
                 <label>Email</label>
