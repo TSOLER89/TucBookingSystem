@@ -1,6 +1,7 @@
 ﻿@page "/rooms"
 @using TucBookingSystem.Shared.DTOs
 @inject TucBookingSystem.Client.Services.RoomService RoomService
+@inject NavigationManager NavigationManager
 
 <h3>Rum</h3>
 
@@ -26,6 +27,7 @@ else
                 <th>Kapacitet</th>
                 <th>Beskrivning</th>
                 <th>Aktiv</th>
+                <th>Boka</th>
             </tr>
         </thead>
         <tbody>
@@ -37,6 +39,20 @@ else
                     <td>@room.Capacity</td>
                     <td>@room.Description</td>
                     <td>@(room.IsActive ? "Ja" : "Nej")</td>
+                    <td>
+                        @if (room.IsActive)
+                        {
+                            <button type="button"
+                                    class="btn btn-primary btn-sm"
+                                    @onclick='@(() => GoToBooking(room.Id))'>
+                                Boka
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Ej bokningsbart</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
@@ -62,5 +78,10 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private void GoToBooking(int roomId)
+    {
+        NavigationManager.NavigateTo($"/bookings?roomId={roomId}");
     }
 }
