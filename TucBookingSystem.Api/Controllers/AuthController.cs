@@ -45,20 +45,19 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
-
     [HttpPost("forgot-password")]
     [Consumes("application/json")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-
         if (user == null)
         {
             return Ok(new
             {
-                message = "Om kontot finns har en återställningslänk skickats."
+                message = "Om e-postadressen finns i systemet skickas en återställningslänk.",
+                resetLink = ""  
             });
-        }
+        }       
 
         var token = Guid.NewGuid().ToString();
 
@@ -70,7 +69,7 @@ public class AuthController : ControllerBase
             IsUsed = false
         };
 
-        _context.PasswordResetTokens.Add(resetToken);
+        _context.PasswordResetTokens.Add(resetToken);       
         await _context.SaveChangesAsync();
 
         var resetLink = $"https://localhost:7116/reset-password?token={token}&email={request.Email}";
@@ -78,7 +77,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             message = "Återställningslänk skapad.",
-            resetLink
+            resetLink = resetLink
         });
     }
 
