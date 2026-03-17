@@ -4,44 +4,49 @@
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
 
-<h3>Bokningar</h3>
+<PageTitle>Bokningar</PageTitle>
 
-@if (isLoading)
-{
-    <p>Laddar...</p>
-}
-else
-{
-    <div class="mb-4">
-        <h4>Skapa ny bokning</h4>
+<div class="booking-page">
+    <h3 class="booking-title">Bokningar</h3>
 
-        @if (!string.IsNullOrWhiteSpace(successMessage))
-        {
-            <div class="alert alert-success">@successMessage</div>
-        }
+    @if (isLoading)
+    {
+        <div class="booking-card">
+            <p class="booking-loading">Laddar bokningar...</p>
+        </div>
+    }
+    else
+    {
+        <div class="booking-card">
+            <h4 class="booking-subtitle">Skapa ny bokning</h4>
 
-        @if (!string.IsNullOrWhiteSpace(errorMessage))
-        {
-            <div class="alert alert-danger">@errorMessage</div>
-        }
+            @if (!string.IsNullOrWhiteSpace(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
 
-        <BookingForm BookingModel="@newBooking"
-                     Rooms="@rooms"
-                     StartTimeText="@startTimeText"
-                     EndTimeText="@endTimeText"
-                     StartTimeTextChanged="@HandleStartTimeChanged"
-                     EndTimeTextChanged="@HandleEndTimeChanged"
-                     OnSubmitBooking="@HandleCreateBooking" />
-    </div>
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
 
-    <hr />
+            <BookingForm BookingModel="@newBooking"
+                         Rooms="@rooms"
+                         StartTimeText="@startTimeText"
+                         EndTimeText="@endTimeText"
+                         StartTimeTextChanged="@HandleStartTimeChanged"
+                         EndTimeTextChanged="@HandleEndTimeChanged"
+                         OnSubmitBooking="@HandleCreateBooking" />
+        </div>
 
-    <div>
-        <h4>Mina bokningar</h4>
-        <BookingList Bookings="@bookings"
-                     OnDeleteBooking="@HandleDeleteBooking" />
-    </div>
-}
+        <div class="booking-card mt-4">
+            <h4 class="booking-subtitle">Mina bokningar</h4>
+
+            <BookingList Bookings="@bookings"
+                         OnDeleteBooking="@HandleDeleteBooking" />
+        </div>
+    }
+</div>
 
 @code {
     private List<RoomDto> rooms = new();

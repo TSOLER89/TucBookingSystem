@@ -1,5 +1,4 @@
 @page "/"
-@inject NavigationManager Nav
 
 <PageTitle>TUC Bokningssystem</PageTitle>
 
@@ -9,16 +8,17 @@
         <p>Boka grupprum och resurser enkelt och snabbt.</p>
 
         <div class="hero-buttons">
-            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/bookings")'>
+            <NavLink href="/bookings" class="btn-primary">
                 Boka rum
-            </button>
-            <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/rooms")'>
+            </NavLink>
+
+            <NavLink href="/rooms" class="btn-secondary">
                 Visa rum
-            </button>
+            </NavLink>
         </div>
 
         <div class="login-prompt">
-            <a href="/login" class="btn-login">Logga in / Registrera</a>
+            <NavLink href="/login" class="btn-login">Logga in / Registrera</NavLink>
         </div>
     </div>
 </div>
@@ -56,6 +56,11 @@
         margin-bottom: 2rem;
     }
 
+        .hero-buttons a {
+            text-decoration: none;
+            display: inline-block;
+        }
+
     .btn-primary {
         background: #F9BEAE;
         color: #2E354F;
@@ -68,9 +73,10 @@
         transition: opacity 0.2s;
     }
 
-    .btn-primary:hover {
-        opacity: 0.9;
-    }
+        .btn-primary:hover {
+            opacity: 0.9;
+            color: #2E354F;
+        }
 
     .btn-secondary {
         background: transparent;
@@ -84,9 +90,10 @@
         transition: background 0.2s;
     }
 
-    .btn-secondary:hover {
-        background: rgba(249,190,174,0.1);
-    }
+        .btn-secondary:hover {
+            background: rgba(249,190,174,0.1);
+            color: #F9BEAE;
+        }
 
     .btn-login {
         background: #DE2724;
@@ -102,10 +109,10 @@
         display: inline-block;
     }
 
-    .btn-login:hover {
-        opacity: 0.85;
-        color: white;
-    }
+        .btn-login:hover {
+            opacity: 0.85;
+            color: white;
+        }
 
     .login-prompt {
         margin-top: 1rem;
