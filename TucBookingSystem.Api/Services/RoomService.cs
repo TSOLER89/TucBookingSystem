@@ -1,6 +1,7 @@
 ﻿using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
 using TucBookingSystem.Shared.DTOs;
+using TucBookingSystem.Shared.Interfaces;
 
 namespace TucBookingSystem.Api.Services;
 
@@ -70,5 +71,6 @@ public class RoomService : IRoomService
             IsActive = created.IsActive,
             CreatedAt = created.CreatedAt
         };
+
     }
 }

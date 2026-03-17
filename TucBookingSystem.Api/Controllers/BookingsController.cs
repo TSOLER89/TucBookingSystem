@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TucBookingSystem.Api.Services;
 using TucBookingSystem.Shared.DTOs;
+using TucBookingSystem.Shared.Interfaces;
 
 namespace TucBookingSystem.Api.Controllers;
 
@@ -66,7 +67,7 @@ public class BookingsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<List<BookingDto>>> GetAll()
     {
-        var bookings = await _bookingService.GetAllAsync();
+        var bookings = await _bookingService.GetAllBookings();
         return Ok(bookings);
     }
 }

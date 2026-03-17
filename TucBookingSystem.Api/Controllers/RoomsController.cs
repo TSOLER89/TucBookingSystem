@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TucBookingSystem.Api.Services;
 using TucBookingSystem.Shared.DTOs;
+using TucBookingSystem.Shared.Interfaces;
 
 namespace TucBookingSystem.Api.Controllers;
 

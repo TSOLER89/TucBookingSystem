@@ -1,6 +1,6 @@
 ﻿using TucBookingSystem.Shared.DTOs;
 
-namespace TucBookingSystem.Api.Services;
+namespace TucBookingSystem.Shared.Interfaces;
 
 public interface IRoomService
 

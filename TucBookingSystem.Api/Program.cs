@@ -5,6 +5,7 @@ using TucBookingSystem.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TucBookingSystem.Shared.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
