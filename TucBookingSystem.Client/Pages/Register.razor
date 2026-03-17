@@ -1,4 +1,5 @@
 @page "/register"
+@rendermode InteractiveServer
 @using TucBookingSystem.Shared.DTOs
 @using TucBookingSystem.Client.Services
 @inject AuthService AuthService
@@ -7,36 +8,39 @@
 <div class="register-page">
 <div class="register-container">
 
-    <h3>Registrera</h3>
+        <h3>Registrera</h3>
 
-    <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
-        <DataAnnotationsValidator />
+        <EditForm Model="registerModel" OnSubmit="HandleRegister" FormName="registerForm">
 
-        <div class="form-group">
-            <label>Namn</label>
-            <InputText @bind-Value="registerModel.FullName" class="input-field" placeholder="Ange ditt namn" />
-            <ValidationMessage For="@(() => registerModel.FullName)" />
-        </div>
+            <div class="form-group">
+                <label>Förnamn</label>
+                <InputText @bind-Value="firstName" class="input-field" placeholder="Ange ditt förnamn" />
+            </div>
 
-        <div class="form-group">
-            <label>Email</label>
-            <InputText @bind-Value="registerModel.Email" class="input-field" placeholder="Ange din e-post" />
-            <ValidationMessage For="@(() => registerModel.Email)" />
-        </div>
+            <div class="form-group">
+                <label>Efternamn</label>
+                <InputText @bind-Value="lastName" class="input-field" placeholder="Ange ditt efternamn" />
+            </div>
 
-        <div class="form-group">
-            <label>Lösenord</label>
-            <InputText type="password" @bind-Value="registerModel.Password" class="input-field" placeholder="Minst 6 tecken" />
-            <ValidationMessage For="@(() => registerModel.Password)" />
-        </div>
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="registerModel.Email" class="input-field" placeholder="Ange din e-post" />
+                <ValidationMessage For="@(() => registerModel.Email)" />
+            </div>
 
-        <button type="submit" class="register-button">Registrera</button>
+            <div class="form-group">
+                <label>Lösenord</label>
+                <InputText type="password" @bind-Value="registerModel.Password" class="input-field" placeholder="Minst 6 tecken" />
+                <ValidationMessage For="@(() => registerModel.Password)" />
+            </div>
 
-        <p class="login-text">
-            Har du redan ett konto?
-            <a href="/login">Logga in</a>
-        </p>
-    </EditForm>
+            <button type="submit" class="register-button">Registrera</button>
+
+            <p class="login-text">
+                Har du redan ett konto?
+                <a href="/login">Logga in</a>
+            </p>
+        </EditForm>
 
     @if (!string.IsNullOrEmpty(errorMessage))
     {
@@ -49,16 +53,25 @@
 @code {
     private RegisterRequestDto registerModel = new();
     private string errorMessage = "";
+    private string firstName = "";
+    private string lastName = "";
 
-    private async Task HandleRegister()
+    private async Task HandleRegister(EditContext editContext)
     {
         errorMessage = "";
+
+        if (!editContext.Validate())
+        {
+            return;
+        }
+
+        registerModel.FullName = $"{firstName} {lastName}";
 
         var result = await AuthService.RegisterAsync(registerModel);
 
         if (result != null)
         {
-            Nav.NavigateTo("/login");
+            errorMessage = "Registreringen lyckades! Du kan nu logga in.";
         }
         else
         {
