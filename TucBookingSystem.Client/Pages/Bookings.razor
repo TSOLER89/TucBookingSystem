@@ -1,8 +1,10 @@
 ﻿@page "/bookings"
 @using TucBookingSystem.Shared.DTOs
 @using TucBookingSystem.Client.Components.Shared
+@using Microsoft.AspNetCore.Components
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Bokningar</PageTitle>
 
@@ -51,6 +53,8 @@
 @code {
     private List<RoomDto> rooms = new();
     private List<BookingDto> bookings = new();
+    [SupplyParameterFromQuery]
+    public int? RoomId { get; set; }
 
     private CreateBookingDto newBooking = new()
     {
@@ -78,6 +82,11 @@
         {
             rooms = await RoomService.GetRoomsAsync();
             bookings = await BookingService.GetMyBookingsAsync();
+
+            if (RoomId.HasValue && rooms.Any(r => r.Id == RoomId.Value))
+            {
+                newBooking.RoomId = RoomId.Value;
+            }
         }
         catch (Exception ex)
         {
