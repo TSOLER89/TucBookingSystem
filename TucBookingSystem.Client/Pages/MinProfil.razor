@@ -42,11 +42,29 @@
 </div>
 
 @code {
-    protected override void OnInitialized()
+    private bool _hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!UserState.IsLoggedIn)
+        if (firstRender && !_hasLoaded)
         {
-            Nav.NavigateTo("/login");
+            Console.WriteLine("MinProfil: Loading state after render...");
+            await UserState.LoadStateAsync();
+
+            Console.WriteLine($"MinProfil: IsLoggedIn = {UserState.IsLoggedIn}, FullName = {UserState.FullName}");
+
+            _hasLoaded = true;
+
+            if (!UserState.IsLoggedIn)
+            {
+                Console.WriteLine("MinProfil: Not logged in, redirecting to login");
+                Nav.NavigateTo("/login");
+            }
+            else
+            {
+                Console.WriteLine("MinProfil: User is logged in!");
+                StateHasChanged();
+            }
         }
     }
 

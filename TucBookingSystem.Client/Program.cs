@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<UserStateService>();
+builder.Services.AddScoped<UserStateService>();
 
 var apiUrl = builder.Configuration["ApiUrl"];
 
