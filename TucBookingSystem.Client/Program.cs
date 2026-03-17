@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components.Endpoints;
 using Microsoft.AspNetCore.Routing;
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
-using TucBookingSystem.Shared.Interfaces;
 
 public partial class Program
 {

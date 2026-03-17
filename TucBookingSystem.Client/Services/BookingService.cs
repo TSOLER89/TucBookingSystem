@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using TucBookingSystem.Shared.DTOs;
-using TucBookingSystem.Shared.Interfaces;
 
 namespace TucBookingSystem.Client.Services;
 
