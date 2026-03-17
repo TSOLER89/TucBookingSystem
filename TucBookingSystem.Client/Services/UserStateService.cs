@@ -1,0 +1,34 @@
+namespace TucBookingSystem.Client.Services;
+
+public class UserStateService
+{
+    public event Action? OnChange;
+
+    public bool IsLoggedIn { get; private set; }
+    public string FullName { get; private set; } = string.Empty;
+    public string Email { get; private set; } = string.Empty;
+    public string Role { get; private set; } = string.Empty;
+    public int UserId { get; private set; }
+
+    public void SetUser(int userId, string fullName, string email, string role)
+    {
+        UserId = userId;
+        FullName = fullName;
+        Email = email;
+        Role = role;
+        IsLoggedIn = true;
+        NotifyStateChanged();
+    }
+
+    public void Logout()
+    {
+        UserId = 0;
+        FullName = string.Empty;
+        Email = string.Empty;
+        Role = string.Empty;
+        IsLoggedIn = false;
+        NotifyStateChanged();
+    }
+
+    private void NotifyStateChanged() => OnChange?.Invoke();
+}

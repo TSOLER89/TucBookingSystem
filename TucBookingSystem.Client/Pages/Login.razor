@@ -3,6 +3,7 @@
 @using TucBookingSystem.Shared.DTOs
 @using TucBookingSystem.Client.Services
 @inject AuthService AuthService
+@inject UserStateService UserState
 @inject NavigationManager Nav
 
 <div class="login-page">
@@ -55,7 +56,8 @@
 
         if (result != null)
         {
-            Nav.NavigateTo("/");
+            UserState.SetUser(result.UserId, result.FullName, result.Email, result.Role);
+            Nav.NavigateTo("/min-profil");
         }
         else
         {

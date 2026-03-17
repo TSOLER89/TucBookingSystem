@@ -1,0 +1,121 @@
+.profile-page {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 40px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #DE2724, #ff6b68);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(222, 39, 36, 0.3);
+}
+
+.avatar-initial {
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+}
+
+.profile-header h2 {
+    font-size: 32px;
+    color: #1d2b53;
+    margin-bottom: 10px;
+}
+
+.user-email {
+    color: #75787B;
+    font-size: 16px;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+}
+
+.profile-section h3 {
+    font-size: 20px;
+    color: #1d2b53;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.info-item label {
+    font-weight: bold;
+    color: #75787B;
+}
+
+.info-item span {
+    color: #1d2b53;
+}
+
+.role-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.action-button {
+    flex: 1;
+    padding: 15px;
+    background: linear-gradient(90deg, #DE2724, #ff4b47);
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.action-button:hover {
+    background: linear-gradient(90deg, #c51f1d, #e93a36);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+    .profile-actions {
+        flex-direction: column;
+    }
+}
