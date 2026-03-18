@@ -94,3 +94,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program class accessible to integration tests
+public partial class Program { }
