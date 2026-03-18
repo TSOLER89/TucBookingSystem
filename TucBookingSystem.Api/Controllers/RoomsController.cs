@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TucBookingSystem.Api.Services;
 using TucBookingSystem.Shared.DTOs;
 
@@ -34,11 +35,22 @@ public class RoomsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<RoomDto>> Create(CreateRoomDto dto)
     {
         var createdRoom = await _roomService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = createdRoom.Id }, createdRoom);
     }
 
-   
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _roomService.DeleteAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return Ok();
+    }
 }

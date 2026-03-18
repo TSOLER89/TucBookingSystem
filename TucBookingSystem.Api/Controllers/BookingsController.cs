@@ -46,6 +46,18 @@ public class BookingsController : ControllerBase
         return Ok(result.Booking);
     }
 
+    [HttpPost("admin/{userId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> CreateForUser(int userId, CreateBookingDto dto)
+    {
+        var result = await _bookingService.CreateAsync(userId, dto);
+
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Booking);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {

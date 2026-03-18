@@ -31,8 +31,10 @@ public partial class Program
         // -----------------------------------------
         builder.Services.AddScoped<RoomService>();
         builder.Services.AddScoped<BookingService>();
+        builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<IRoomService>(sp => sp.GetRequiredService<RoomService>());
         builder.Services.AddScoped<IBookingService>(sp => sp.GetRequiredService<BookingService>());
+        builder.Services.AddScoped<IUserService>(sp => sp.GetRequiredService<UserService>());
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<ProtectedSessionStorage>();
         builder.Services.AddScoped<UserStateService>();

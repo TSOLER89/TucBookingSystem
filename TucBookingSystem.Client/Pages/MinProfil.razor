@@ -39,6 +39,12 @@
             <a href="/rooms" class="action-button">
                 Boka Rum
             </a>
+            @if (UserState.IsAdmin)
+            {
+                <a href="/admin" class="action-button">
+                    Admin Sida
+                </a>
+            }
         </div>
 
         <div class="profile-section notifications-section">

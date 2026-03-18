@@ -50,4 +50,25 @@ public class RoomService : IRoomService
         return await response.Content.ReadFromJsonAsync<RoomDto>()
             ?? throw new InvalidOperationException("API returnerade inget rum.");
     }
+
+    public async Task<bool> DeleteRoomAsync(int id)
+    {
+        try
+        {
+            await DeleteAsync(id);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"api/rooms/{id}");
+
+        if (!response.IsSuccessStatusCode)
+            throw new HttpRequestException($"Kunde inte ta bort rum. Statuskod: {response.StatusCode}");
+    }
 }

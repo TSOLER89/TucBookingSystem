@@ -32,7 +32,7 @@
             </NavLink>
         </div>
 
-        @if (UserState.Role == "Admin")
+        @if (UserState.IsAdmin)
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="admin">
@@ -119,6 +119,11 @@
     private async void Logout()
     {
         await UserState.LogoutAsync();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    private void Login()
+    {
         Nav.NavigateTo("/login", forceLoad: true);
     }
 
