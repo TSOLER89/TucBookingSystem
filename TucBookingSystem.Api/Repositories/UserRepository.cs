@@ -19,6 +19,12 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByIdAsync(int id) =>
         await _context.Users.FindAsync(id);
 
+    public async Task<List<User>> GetAllAsync() =>
+        await _context.Users
+            .OrderBy(u => u.FullName)
+            .ThenBy(u => u.Email)
+            .ToListAsync();
+
     public async Task AddAsync(User user)
     {
         await _context.Users.AddAsync(user);

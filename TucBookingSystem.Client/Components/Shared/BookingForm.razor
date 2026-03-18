@@ -1,8 +1,22 @@
-﻿@using TucBookingSystem.Shared.DTOs
+@using TucBookingSystem.Shared.DTOs
 
 <EditForm Model="BookingModel" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
+
+    @if (ShowUserSelector)
+    {
+        <div class="mb-3">
+            <label class="form-label">Boka åt</label>
+            <InputSelect class="form-control" @bind-Value="BoundSelectedUserId">
+                <option value="0">Välj användare</option>
+                @foreach (var user in Users)
+                {
+                    <option value="@user.Id">@user.FullName (@user.Email)</option>
+                }
+            </InputSelect>
+        </div>
+    }
 
     <div class="mb-3">
         <label class="form-label">Rum</label>
@@ -74,6 +88,18 @@
     [Parameter]
     public EventCallback<string> EndTimeTextChanged { get; set; }
 
+    [Parameter]
+    public bool ShowUserSelector { get; set; }
+
+    [Parameter]
+    public List<UserDto> Users { get; set; } = new();
+
+    [Parameter]
+    public int SelectedUserId { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedUserIdChanged { get; set; }
+
     private async Task HandleSubmit()
     {
         await OnSubmitBooking.InvokeAsync();
@@ -93,20 +119,35 @@
         await EndTimeTextChanged.InvokeAsync(value);
     }
 
+    private int BoundSelectedUserId
+    {
+        get => SelectedUserId;
+        set
+        {
+            if (SelectedUserId == value)
+            {
+                return;
+            }
+
+            SelectedUserId = value;
+            _ = SelectedUserIdChanged.InvokeAsync(value);
+        }
+    }
+
     private List<string> TimeOptions = new()
-{
-    "08:00","08:30",
-    "09:00","09:30",
-    "10:00","10:30",
-    "11:00","11:30",
-    "12:00","12:30",
-    "13:00","13:30",
-    "14:00","14:30",
-    "15:00","15:30",
-    "16:00","16:30",
-    "17:00","17:30",
-    "18:00","18:30",
-    "19:00","19:30",
-    "20:00"
-};
+    {
+        "08:00","08:30",
+        "09:00","09:30",
+        "10:00","10:30",
+        "11:00","11:30",
+        "12:00","12:30",
+        "13:00","13:30",
+        "14:00","14:30",
+        "15:00","15:30",
+        "16:00","16:30",
+        "17:00","17:30",
+        "18:00","18:30",
+        "19:00","19:30",
+        "20:00"
+    };
 }
