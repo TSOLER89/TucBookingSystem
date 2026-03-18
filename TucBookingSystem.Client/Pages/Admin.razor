@@ -6,6 +6,8 @@
 
 @inject IBookingService BookingService
 @inject IRoomService RoomService
+@inject UserStateService UserState
+@inject NavigationManager NavigationManager
 
 @* @attribute [Authorize(Roles = "Admin")] *@
 
@@ -65,15 +67,31 @@
     };
 
     private bool isLoading = true;
+    private bool isAuthorized;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
 
     private string startTimeText = "08:00";
     private string endTimeText = "09:00";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await UserState.LoadStateAsync();
+
+        if (!UserState.IsAdmin)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        isAuthorized = true;
         await LoadData();
+        StateHasChanged();
     }
 
     private async Task LoadData()
@@ -110,6 +128,11 @@
 
     private async Task HandleCreateBooking()
     {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
@@ -135,7 +158,7 @@
         newBooking.EndTime = endTime;
 
         // ⚠️ TEMP userId (ska senare komma från auth)
-        var userId = 1;
+        var userId = UserState.UserId;
 
         var result = await BookingService.CreateAsync(userId, newBooking);
 
@@ -160,11 +183,15 @@
 
     private async Task HandleDeleteBooking(int bookingId)
     {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
-        // ⚠️ TEMP userId
-        var userId = 1;
+        var userId = UserState.UserId;
 
         var result = await BookingService.DeleteAsync(bookingId, userId);
 

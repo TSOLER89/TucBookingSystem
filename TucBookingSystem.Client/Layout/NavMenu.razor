@@ -31,11 +31,14 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin">
-                <span class="nav-icon">⚙️</span> Admin
-            </NavLink>
-        </div>
+        @if (UserState.IsAdmin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="nav-icon">⚙️</span> Admin
+                </NavLink>
+            </div>
+        }
 
         <div class="nav-item px-3 logout-item">
             <button class="nav-link logout-btn" @onclick="Logout">
