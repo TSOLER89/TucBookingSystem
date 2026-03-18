@@ -81,4 +81,15 @@ public class BookingsController : ControllerBase
         var bookings = await _bookingService.GetAllBookings();
         return Ok(bookings);
     }
+
+    [HttpGet("room/{roomId}/date/{date}")]
+    [AllowAnonymous] // Alla kan se upptagna tider
+    public async Task<ActionResult<List<BookingDto>>> GetBookingsByRoomAndDate(int roomId, string date)
+    {
+        if (!DateOnly.TryParse(date, out var parsedDate))
+            return BadRequest("Ogiltigt datumformat. Använd YYYY-MM-DD.");
+
+        var bookings = await _bookingService.GetBookingsByRoomAndDateAsync(roomId, parsedDate);
+        return Ok(bookings);
+    }
 }

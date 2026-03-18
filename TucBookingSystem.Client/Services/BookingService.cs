@@ -80,4 +80,11 @@ public class BookingService : IBookingService
         var bookings = await _httpClient.GetFromJsonAsync<List<BookingDto>>("api/bookings");
         return bookings ?? new List<BookingDto>();
     }
+
+    public async Task<List<BookingDto>> GetBookingsByRoomAndDateAsync(int roomId, DateOnly date)
+    {
+        var dateString = date.ToString("yyyy-MM-dd");
+        var bookings = await _httpClient.GetFromJsonAsync<List<BookingDto>>($"api/bookings/room/{roomId}/date/{dateString}");
+        return bookings ?? new List<BookingDto>();
+    }
 }
