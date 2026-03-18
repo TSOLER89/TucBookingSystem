@@ -20,6 +20,7 @@ Thumbs.db
 .idea/
 .vscode/
 
+#database
 *.db
    *.db-shm
    *.db-wal
