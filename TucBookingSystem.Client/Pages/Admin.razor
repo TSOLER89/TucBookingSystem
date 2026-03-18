@@ -15,12 +15,12 @@
 <PageTitle>Admin Sida</PageTitle>
 
 <div class="booking-page">
-    <h3 class="booking-title">Admin - Hantera alla bokningar</h3>
+    <h3 class="booking-title">Admin - Hantera bokningar och rum</h3>
 
     @if (isLoading)
     {
         <div class="booking-card">
-            <p class="booking-loading">Laddar bokningar...</p>
+            <p class="booking-loading">Laddar adminpanelen...</p>
         </div>
     }
     else
@@ -45,6 +45,69 @@
         </div>
 
         <div class="booking-card mt-4">
+            <h4 class="booking-subtitle">Hantera rum</h4>
+
+            <EditForm Model="@newRoom" OnValidSubmit="@HandleCreateRoom">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Namn</label>
+                        <InputText class="form-control" @bind-Value="newRoom.Name" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Plats</label>
+                        <InputText class="form-control" @bind-Value="newRoom.Location" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Kapacitet</label>
+                        <InputNumber class="form-control" @bind-Value="newRoom.Capacity" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Beskrivning</label>
+                        <InputText class="form-control" @bind-Value="newRoom.Description" />
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Lägg till rum</button>
+                </div>
+            </EditForm>
+
+            <div class="mt-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Namn</th>
+                            <th>Plats</th>
+                            <th>Kapacitet</th>
+                            <th>Beskrivning</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var room in rooms)
+                        {
+                            <tr>
+                                <td>@room.Name</td>
+                                <td>@room.Location</td>
+                                <td>@room.Capacity</td>
+                                <td>@room.Description</td>
+                                <td>
+                                    <button type="button"                                            class="btn btn-danger btn-sm"
+                                            @onclick="() => HandleDeleteRoom(room.Id)">
+                                        Ta bort
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="booking-card mt-4">
             <h4 class="booking-subtitle">Alla bokningar</h4>
 
             <BookingList Bookings="@bookings"                         OnDeleteBooking="@HandleDeleteBooking" />
@@ -62,6 +125,7 @@
         Date = DateOnly.FromDateTime(DateTime.Today)
     };
 
+    private CreateRoomDto newRoom = new();
     private int selectedUserId;
     private bool isLoading = true;
     private bool isAuthorized;
@@ -104,7 +168,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Kunde inte ladda bokningssidan: {ex.Message}";
+            errorMessage = $"Kunde inte ladda adminpanelen: {ex.Message}";
         }
         finally
         {
@@ -187,6 +251,51 @@
         endTimeText = "09:00";
 
         bookings = await BookingService.GetAllBookings();
+    }
+
+    private async Task HandleCreateRoom()
+    {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            await RoomService.CreateAsync(newRoom);
+            newRoom = new CreateRoomDto();
+            rooms = await RoomService.GetAllAsync();
+            successMessage = "Rummet lades till.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte lägga till rum: {ex.Message}";
+        }
+    }
+
+    private async Task HandleDeleteRoom(int roomId)
+    {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            await RoomService.DeleteAsync(roomId);
+            rooms = await RoomService.GetAllAsync();
+            successMessage = "Rummet togs bort.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte ta bort rum: {ex.Message}";
+        }
     }
 
     private async Task HandleDeleteBooking(int bookingId)

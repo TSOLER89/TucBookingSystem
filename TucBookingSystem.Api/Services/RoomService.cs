@@ -85,4 +85,17 @@ public class RoomService : IRoomService
         };
 
     }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        _logger.LogInformation("Deleting room {RoomId}", id);
+        var deleted = await _roomRepository.DeleteAsync(id);
+
+        if (!deleted)
+        {
+            _logger.LogWarning("Room {RoomId} could not be deleted", id);
+        }
+
+        return deleted;
+    }
 }
