@@ -40,12 +40,25 @@
             <p class="error">@errorMessage</p>
         }
 
+        @if (showSuccessMessage)
+        {
+            <p class="success">✅ Registrering lyckades! Du kan nu logga in.</p>
+        }
+
     </div>
 </div>
 
 @code {
     private LoginRequestDto loginModel = new();
     private string errorMessage = "";
+    private bool showSuccessMessage = false;
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(Nav.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        showSuccessMessage = query["registered"] == "true";
+    }
 
     private async Task HandleLogin()
     {
