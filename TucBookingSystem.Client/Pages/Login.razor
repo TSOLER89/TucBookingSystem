@@ -70,7 +70,13 @@
 
             if (result != null)
             {
-                await UserState.SetUserAsync(result.UserId, result.FullName, result.Email, result.Role);
+                await UserState.SetUserAsync(
+                    result.UserId,
+                    result.FullName,
+                    result.Email,
+                    result.Role,
+                    result.Token);
+
                 Nav.NavigateTo("/min-profil");
             }
             else

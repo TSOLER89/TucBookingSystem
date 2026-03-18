@@ -5,6 +5,7 @@
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
 @inject NavigationManager NavigationManager
+@inject TucBookingSystem.Client.Services.UserStateService UserState
 
 <PageTitle>Bokningar</PageTitle>
 
@@ -70,6 +71,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await UserState.LoadStateAsync();
+
+        if (!UserState.IsLoggedIn)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
         await LoadData();
     }
 
