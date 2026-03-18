@@ -19,3 +19,9 @@ Thumbs.db
 # Rider / VS Code
 .idea/
 .vscode/
+
+*.db
+   *.db-shm
+   *.db-wal
+   appsettings.*.json
+   !appsettings.json
