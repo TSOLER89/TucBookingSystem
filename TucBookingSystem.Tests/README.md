@@ -10,14 +10,7 @@ Detta projekt innehåller omfattande tester för TucBookingSystem API.
 - **AuthServiceTests.cs** - Autentisering och användarhantering
 - **EmailServiceTests.cs** - Email-funktionalitet
 
-### Integration Tests
-
-#### Controller Tests (WebApplicationFactory)
-- **AuthControllerIntegrationTests.cs** - Registrering, login, lösenordsåterställning
-- **BookingsControllerIntegrationTests.cs** - CRUD operations för bokningar
-- **RoomsControllerIntegrationTests.cs** - CRUD operations för rum
-
-#### Repository Tests (InMemory Database)
+### Repository Integration Tests (InMemory Database)
 - **BookingRepositoryIntegrationTests.cs** - Databasoperationer för bokningar
 - **RoomRepositoryIntegrationTests.cs** - Databasoperationer för rum
 - **UserRepositoryIntegrationTests.cs** - Databasoperationer för användare
@@ -27,8 +20,7 @@ Detta projekt innehåller omfattande tester för TucBookingSystem API.
 - **xUnit** - Test framework
 - **FluentAssertions** - Readable assertions
 - **Moq** - Mocking framework
-- **Microsoft.AspNetCore.Mvc.Testing** - Integration testing
-- **Microsoft.EntityFrameworkCore.InMemory** - In-memory database för tester
+- **Microsoft.EntityFrameworkCore.InMemory** - In-memory database för repository tester
 
 ## ▶️ Kör tester
 
@@ -51,7 +43,6 @@ dotnet test --collect:"XPlat Code Coverage"
 
 Nuvarande test coverage inkluderar:
 - ✅ Services (BookingService, RoomService, AuthService, EmailService)
-- ✅ Controllers (AuthController, BookingsController, RoomsController)
 - ✅ Repositories (BookingRepository, RoomRepository, UserRepository)
 
 ## 🎯 Test Patterns
@@ -61,11 +52,10 @@ Nuvarande test coverage inkluderar:
 - Testar en komponent i isolation
 - Snabba och fokuserade
 
-### Integration Tests
-- Använder WebApplicationFactory för controller tests
-- Använder InMemory database för repository tests
-- Testar komponenter tillsammans
-- Verifierar att system fungerar end-to-end
+### Repository Integration Tests
+- Använder InMemory database
+- Testar databasoperationer
+- Verifierar att repository fungerar korrekt mot databas
 
 ## 📝 Exempel
 
@@ -76,25 +66,28 @@ public async Task GetAllAsync_ShouldReturnAllRooms()
 {
     // Arrange
     _roomRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(roomList);
-    
+
     // Act
     var result = await _service.GetAllAsync();
-    
+
     // Assert
     result.Should().HaveCount(2);
 }
 ```
 
-### Integration Test
+### Repository Integration Test
 ```csharp
 [Fact]
-public async Task GetAll_ShouldReturnOk_AndListOfRooms()
+public async Task CreateAsync_ShouldAddBooking()
 {
+    // Arrange
+    var booking = new Booking { /* ... */ };
+
     // Act
-    var response = await _client.GetAsync("/api/rooms");
-    
+    var result = await _repository.CreateAsync(booking);
+
     // Assert
-    response.StatusCode.Should().Be(HttpStatusCode.OK);
+    result.Id.Should().BeGreaterThan(0);
 }
 ```
 
