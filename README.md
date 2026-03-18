@@ -2,6 +2,28 @@
 
 Ett modernt bokningssystem för grupprum och resurser byggt med .NET 10 och Blazor.
 
+## ⚡ QUICK START (EFTER CLONE/PULL)
+
+**HAR DU PRECIS KLONAT/PULLAT PROJEKTET?**
+
+Kör detta i PowerShell från projektets root-mapp:
+```powershell
+.\setup.ps1
+```
+
+**ELLER manuellt:**
+```bash
+cd TucBookingSystem.Api
+copy appsettings.Development.json.template appsettings.Development.json
+dotnet ef database update
+```
+
+**Sedan tryck F5 i Visual Studio och allt fungerar!** ✅
+
+Läs [SECRETS_SETUP.md](SECRETS_SETUP.md) för mer information.
+
+---
+
 ## 🚀 Funktioner
 
 - ✅ **Användarhantering** - Registrering, login, lösenordsåterställning

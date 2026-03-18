@@ -4,34 +4,50 @@
 
 Känsliga nycklar och lösenord finns inte längre i Git av säkerhetsskäl.
 
+## ⚡ SNABB START (För att köra igång direkt)
+
+**Efter att du klonat/pullat projektet:**
+
+1. **Gå till `TucBookingSystem.Api` mappen**
+2. **Kopiera template-filen:**
+   ```bash
+   copy appsettings.Development.json.template appsettings.Development.json
+   ```
+   (På Mac/Linux: `cp appsettings.Development.json.template appsettings.Development.json`)
+
+3. **Kör database migrations:**
+   ```bash
+   dotnet ef database update
+   ```
+
+4. **Starta projektet!** (F5 i Visual Studio)
+
+**Nu fungerar login/registrering!** ✅
+
+---
+
 ## 🛠️ Setup för Development
 
-### Metod 1: User Secrets (Rekommenderad)
+### Metod 1: Kopiera Template (Snabbast)
+
+Använd den medföljande template-filen:
+```bash
+cd TucBookingSystem.Api
+copy appsettings.Development.json.template appsettings.Development.json
+```
+
+Denna fil innehåller redan fungerande JWT-nyckel för development!
+
+### Metod 2: User Secrets (Mer säkert)
 
 1. Öppna terminalen i `TucBookingSystem.Api` mappen
 2. Kör:
 ```bash
 dotnet user-secrets init
-dotnet user-secrets set "Jwt:Key" "DIN_HEMLIGA_NYCKEL_MINST_32_TECKEN"
+dotnet user-secrets set "Jwt:Key" "DettaArEnSuperHemligNyckelSomArMinst32Tecken"
 dotnet user-secrets set "Email:FromAddress" "din-email@gmail.com"
 dotnet user-secrets set "Email:Username" "din-email@gmail.com"
 dotnet user-secrets set "Email:Password" "ditt-gmail-app-password"
-```
-
-### Metod 2: Local appsettings (Enklare för test)
-
-Skapa `TucBookingSystem.Api/appsettings.Development.json` (gitignored):
-```json
-{
-  "Jwt": {
-    "Key": "DIN_HEMLIGA_NYCKEL_MINST_32_TECKEN"
-  },
-  "Email": {
-    "FromAddress": "din-email@gmail.com",
-    "Username": "din-email@gmail.com",
-    "Password": "ditt-gmail-app-password"
-  }
-}
 ```
 
 ## 📧 Gmail Setup
