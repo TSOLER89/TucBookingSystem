@@ -12,19 +12,29 @@ public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(IUserRepository userRepository, IConfiguration configuration)
+    public AuthService(
+        IUserRepository userRepository, 
+        IConfiguration configuration,
+        ILogger<AuthService> logger)
     {
         _userRepository = userRepository;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<UserDto?> RegisterAsync(RegisterRequestDto dto)
     {
+        _logger.LogInformation("Attempting to register user with email: {Email}", dto.Email);
+
         var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
 
         if (existingUser is not null)
+        {
+            _logger.LogWarning("Registration failed: Email {Email} already exists", dto.Email);
             return null;
+        }
 
         var user = new User
         {
@@ -35,6 +45,7 @@ public class AuthService : IAuthService
         };
 
         await _userRepository.AddAsync(user);
+        _logger.LogInformation("User registered successfully: {Email}", dto.Email);
 
         return new UserDto
         {
@@ -47,15 +58,24 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto dto)
     {
+        _logger.LogInformation("Login attempt for email: {Email}", dto.Email);
+
         var user = await _userRepository.GetByEmailAsync(dto.Email);
 
         if (user is null)
+        {
+            _logger.LogWarning("Login failed: User with email {Email} not found", dto.Email);
             return null;
+        }
 
         if (user.PasswordHash != dto.Password)
+        {
+            _logger.LogWarning("Login failed: Invalid password for email {Email}", dto.Email);
             return null;
+        }
 
         var token = GenerateJwtToken(user);
+        _logger.LogInformation("User {Email} logged in successfully", dto.Email);
 
         return new LoginResponseDto
         {

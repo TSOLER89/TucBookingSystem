@@ -7,15 +7,19 @@ namespace TucBookingSystem.Api.Services;
 public class RoomService : IRoomService
 {
     private readonly IRoomRepository _roomRepository;
+    private readonly ILogger<RoomService> _logger;
 
-    public RoomService(IRoomRepository roomRepository)
+    public RoomService(IRoomRepository roomRepository, ILogger<RoomService> logger)
     {
         _roomRepository = roomRepository;
+        _logger = logger;
     }
 
     public async Task<List<RoomDto>> GetAllAsync()
     {
+        _logger.LogInformation("Fetching all rooms");
         var rooms = await _roomRepository.GetAllAsync();
+        _logger.LogInformation("Found {Count} rooms", rooms.Count);
 
         return rooms.Select(r => new RoomDto
         {
@@ -31,8 +35,14 @@ public class RoomService : IRoomService
 
     public async Task<RoomDto?> GetByIdAsync(int id)
     {
+        _logger.LogInformation("Fetching room {RoomId}", id);
         var room = await _roomRepository.GetByIdAsync(id);
-        if (room is null) return null;
+
+        if (room is null)
+        {
+            _logger.LogWarning("Room {RoomId} not found", id);
+            return null;
+        }
 
         return new RoomDto
         {
@@ -48,6 +58,8 @@ public class RoomService : IRoomService
 
     public async Task<RoomDto> CreateAsync(CreateRoomDto dto)
     {
+        _logger.LogInformation("Creating new room: {RoomName}", dto.Name);
+
         var room = new Room
         {
             Name = dto.Name,
@@ -59,6 +71,7 @@ public class RoomService : IRoomService
         };
 
         var created = await _roomRepository.CreateAsync(room);
+        _logger.LogInformation("Room {RoomId} created successfully", created.Id);
 
         return new RoomDto
         {
