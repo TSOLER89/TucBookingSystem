@@ -1,20 +1,28 @@
-﻿using TucBookingSystem.Api.Models;
+using FluentAssertions;
+using Moq;
+using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
 using TucBookingSystem.Api.Services;
 using TucBookingSystem.Shared.DTOs;
-using Xunit;
 
 namespace TucBookingSystem.Tests;
 
 public class BookingServiceTests
 {
+    private readonly Mock<IBookingRepository> _bookingRepo;
+    private readonly Mock<IRoomRepository> _roomRepo;
+    private readonly BookingService _service;
+
+    public BookingServiceTests()
+    {
+        _bookingRepo = new Mock<IBookingRepository>();
+        _roomRepo = new Mock<IRoomRepository>();
+        _service = new BookingService(_bookingRepo.Object, _roomRepo.Object);
+    }
+
     [Fact]
     public async Task CreateAsync_ShouldFail_WhenStartTimeIsAfterEndTime()
     {
-        var bookingRepo = new FakeBookingRepository();
-        var roomRepo = new FakeRoomRepository();
-        var service = new BookingService(bookingRepo, roomRepo);
-
         var dto = new CreateBookingDto
         {
             RoomId = 1,
@@ -24,19 +32,15 @@ public class BookingServiceTests
             Purpose = "Test"
         };
 
-        var result = await service.CreateAsync(1, dto);
+        var result = await _service.CreateAsync(1, dto);
 
-        Assert.False(result.Success);
-        Assert.Equal("Starttid måste vara före sluttid.", result.Message);
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Starttid måste vara före sluttid.");
     }
 
     [Fact]
     public async Task CreateAsync_ShouldFail_WhenDateIsInThePast()
     {
-        var bookingRepo = new FakeBookingRepository();
-        var roomRepo = new FakeRoomRepository();
-        var service = new BookingService(bookingRepo, roomRepo);
-
         var dto = new CreateBookingDto
         {
             RoomId = 1,
@@ -46,56 +50,174 @@ public class BookingServiceTests
             Purpose = "Test"
         };
 
-        var result = await service.CreateAsync(1, dto);
+        var result = await _service.CreateAsync(1, dto);
 
-        Assert.False(result.Success);
-        Assert.Equal("Du kan inte boka ett datum i det förflutna.", result.Message);
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Du kan inte boka ett datum i det förflutna.");
     }
-}
 
-public class FakeBookingRepository : IBookingRepository
-{
-    public Task<List<Booking>> GetUserBookingsAsync(int userId)
-        => Task.FromResult(new List<Booking>());
-
-    public Task<bool> HasConflictAsync(int roomId, DateOnly date, TimeOnly startTime, TimeOnly endTime)
-        => Task.FromResult(false);
-
-    public Task<Booking> CreateAsync(Booking booking)
+    [Fact]
+    public async Task CreateAsync_ShouldFail_WhenStartTimeTooEarly()
     {
-        booking.Id = 1;
-        return Task.FromResult(booking);
+        var dto = new CreateBookingDto
+        {
+            RoomId = 1,
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(7, 0),
+            EndTime = new TimeOnly(9, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Bokningar måste vara mellan 08:00 och 20:00.");
     }
 
-    public Task<bool> DeleteAsync(int id)
-        => Task.FromResult(true);
-
-    public Task<IEnumerable<Booking>> GetAllAsync()
-        => Task.FromResult<IEnumerable<Booking>>(new List<Booking>());
-
-    public Task<Booking?> GetByIdAsync(int id)
-        => Task.FromResult<Booking?>(null);
-}
-
-public class FakeRoomRepository : IRoomRepository
-{
-    public Task<List<Room>> GetAllAsync()
-        => Task.FromResult(new List<Room>());
-
-    public Task<Room?> GetByIdAsync(int id)
-        => Task.FromResult<Room?>(new Room
+    [Fact]
+    public async Task CreateAsync_ShouldFail_WhenEndTimeTooLate()
+    {
+        var dto = new CreateBookingDto
         {
-            Id = 1,
-            Name = "Room A",
-            Capacity = 4
+            RoomId = 1,
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(19, 0),
+            EndTime = new TimeOnly(21, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Bokningar måste vara mellan 08:00 och 20:00.");
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldFail_WhenRoomNotFound()
+    {
+        _roomRepo.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Room?)null);
+
+        var dto = new CreateBookingDto
+        {
+            RoomId = 99,
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Rummet finns inte.");
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldFail_WhenTimeConflictExists()
+    {
+        _roomRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Room { Id = 1, Name = "Room A" });
+        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>()))
+                    .ReturnsAsync(true);
+
+        var dto = new CreateBookingDto
+        {
+            RoomId = 1,
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Rummet är redan bokat den tiden.");
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldSucceed_WithValidData()
+    {
+        _roomRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Room { Id = 1, Name = "Room A" });
+        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>()))
+                    .ReturnsAsync(false);
+        _bookingRepo.Setup(r => r.CreateAsync(It.IsAny<Booking>()))
+                    .ReturnsAsync((Booking b) => { b.Id = 1; return b; });
+
+        var dto = new CreateBookingDto
+        {
+            RoomId = 1,
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Möte"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeTrue();
+        result.Booking.Should().NotBeNull();
+        result.Booking!.RoomId.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldFail_WhenBookingNotFound()
+    {
+        _bookingRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Booking?)null);
+
+        var result = await _service.DeleteAsync(999, 1);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Bokningen finns inte.");
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldFail_WhenUserDoesNotOwnBooking()
+    {
+        _bookingRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Booking { Id = 1, UserId = 2 });
+
+        var result = await _service.DeleteAsync(1, userId: 1);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Du får bara avboka dina egna bokningar.");
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldSucceed_WhenUserOwnsBooking()
+    {
+        _bookingRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Booking { Id = 1, UserId = 1 });
+        _bookingRepo.Setup(r => r.DeleteAsync(1)).ReturnsAsync(true);
+
+        var result = await _service.DeleteAsync(1, userId: 1);
+
+        result.Success.Should().BeTrue();
+        result.Message.Should().Be("Bokningen avbokades.");
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ShouldReturnAllBookings()
+    {
+        _bookingRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Booking>
+        {
+            new Booking { Id = 1, RoomId = 1, UserId = 1, Date = DateOnly.FromDateTime(DateTime.Today), StartTime = new TimeOnly(10, 0), EndTime = new TimeOnly(11, 0) },
+            new Booking { Id = 2, RoomId = 2, UserId = 2, Date = DateOnly.FromDateTime(DateTime.Today), StartTime = new TimeOnly(12, 0), EndTime = new TimeOnly(13, 0) }
         });
 
-    public Task<Room> CreateAsync(Room room)
-        => Task.FromResult(room);
+        var result = await _service.GetAllAsync();
 
-    public Task<bool> UpdateAsync(int id, Room room)
-        => Task.FromResult(true);
+        result.Should().HaveCount(2);
+    }
 
-    public Task<bool> DeleteAsync(int id)
-        => Task.FromResult(true);
+    [Fact]
+    public async Task GetUserBookingsAsync_ShouldReturnOnlyUserBookings()
+    {
+        _bookingRepo.Setup(r => r.GetUserBookingsAsync(1)).ReturnsAsync(new List<Booking>
+        {
+            new Booking { Id = 1, RoomId = 1, UserId = 1, Date = DateOnly.FromDateTime(DateTime.Today), StartTime = new TimeOnly(10, 0), EndTime = new TimeOnly(11, 0) }
+        });
+
+        var result = await _service.GetUserBookingsAsync(1);
+
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(1);
+    }
 }
