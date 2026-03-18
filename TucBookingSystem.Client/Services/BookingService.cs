@@ -42,6 +42,20 @@ public class BookingService : IBookingService
         return (true, "Bokning skapad.", booking);
     }
 
+    public async Task<(bool Success, string Message, BookingDto? Booking)> CreateForUserAsync(int userId, CreateBookingDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/bookings/admin/{userId}", dto);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            return (false, error, null);
+        }
+
+        var booking = await response.Content.ReadFromJsonAsync<BookingDto>();
+        return (true, "Bokning skapad.", booking);
+    }
+
     public Task<(bool Success, string Message)> DeleteBookingAsync(int bookingId)
     {
         return DeleteAsync(bookingId, 0);

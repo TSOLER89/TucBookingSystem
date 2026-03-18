@@ -82,6 +82,34 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    dbContext.Database.EnsureCreated();
+
+    var adminUser = await dbContext.Users.FirstOrDefaultAsync(user => user.Email == "admin@admin.se");
+
+    if (adminUser is null)
+    {
+        dbContext.Users.Add(new TucBookingSystem.Api.Models.User
+        {
+            FullName = "Admin",
+            Email = "admin@admin.se",
+            PasswordHash = "admin",
+            Role = "Admin"
+        });
+    }
+    else
+    {
+        adminUser.FullName = "Admin";
+        adminUser.PasswordHash = "admin";
+        adminUser.Role = "Admin";
+    }
+
+    await dbContext.SaveChangesAsync();
+}
+
 // Global Exception Handler
 app.UseMiddleware<GlobalExceptionHandler>();
 

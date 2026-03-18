@@ -18,6 +18,7 @@ public class UserStateService
     public string Role { get; private set; } = string.Empty;
     public string Token { get; private set; } = string.Empty;
     public int UserId { get; private set; }
+    public bool IsAdmin => IsLoggedIn && string.Equals(Role, "Admin", StringComparison.OrdinalIgnoreCase);
 
     public UserStateService(ProtectedSessionStorage sessionStorage, HttpClient httpClient)
     {
