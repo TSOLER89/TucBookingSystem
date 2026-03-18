@@ -22,3 +22,7 @@ Thumbs.db
 
 #database
 *.db
+   *.db-shm
+   *.db-wal
+   appsettings.*.json
+   !appsettings.json

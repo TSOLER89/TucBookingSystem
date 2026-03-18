@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
@@ -11,13 +12,15 @@ public class BookingServiceTests
 {
     private readonly Mock<IBookingRepository> _bookingRepo;
     private readonly Mock<IRoomRepository> _roomRepo;
+    private readonly Mock<ILogger<BookingService>> _logger;
     private readonly BookingService _service;
 
     public BookingServiceTests()
     {
         _bookingRepo = new Mock<IBookingRepository>();
         _roomRepo = new Mock<IRoomRepository>();
-        _service = new BookingService(_bookingRepo.Object, _roomRepo.Object);
+        _logger = new Mock<ILogger<BookingService>>();
+        _service = new BookingService(_bookingRepo.Object, _roomRepo.Object, _logger.Object);
     }
 
     [Fact]

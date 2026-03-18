@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
@@ -12,18 +13,20 @@ public class AuthServiceTests
 {
     private readonly Mock<IUserRepository> _userRepo;
     private readonly Mock<IConfiguration> _config;
+    private readonly Mock<ILogger<AuthService>> _logger;
     private readonly AuthService _service;
 
     public AuthServiceTests()
     {
         _userRepo = new Mock<IUserRepository>();
         _config = new Mock<IConfiguration>();
+        _logger = new Mock<ILogger<AuthService>>();
 
         _config.Setup(c => c["Jwt:Key"]).Returns("DettaArEnSuperHemligNyckelSomArMinst32Tecken");
         _config.Setup(c => c["Jwt:Issuer"]).Returns("TucBookingSystem");
         _config.Setup(c => c["Jwt:Audience"]).Returns("TucBookingSystemUsers");
 
-        _service = new AuthService(_userRepo.Object, _config.Object);
+        _service = new AuthService(_userRepo.Object, _config.Object, _logger.Object);
     }
 
     [Fact]

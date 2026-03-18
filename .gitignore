@@ -19,7 +19,12 @@ Thumbs.db
 # Rider / VS Code
 .idea/
 .vscode/
-/TucBookingSystem.Api/tucbookingsystem.db-wal
-/TucBookingSystem.Api/tucbookingsystem.db-shm
-/TucBookingSystem.Api/tucbookingsystem.db
-/TucBookingSystem.Api/tucbookingsystem.db
+
+# SQLite Database Files (ALL)
+*.db
+*.db-wal
+*.db-shm
+
+# Sensitive files - DO NOT COMMIT
+**/appsettings.Production.json
+secrets.json

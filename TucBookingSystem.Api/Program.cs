@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TucBookingSystem.Api.Data;
 using TucBookingSystem.Api.Repositories;
 using TucBookingSystem.Api.Services;
+using TucBookingSystem.Api.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -81,6 +82,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Global Exception Handler
+app.UseMiddleware<GlobalExceptionHandler>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -94,3 +98,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program class accessible to integration tests
+public partial class Program { }

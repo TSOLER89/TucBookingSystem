@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
@@ -10,12 +11,14 @@ namespace TucBookingSystem.Tests;
 public class RoomServiceTests
 {
     private readonly Mock<IRoomRepository> _roomRepo;
+    private readonly Mock<ILogger<RoomService>> _logger;
     private readonly RoomService _service;
 
     public RoomServiceTests()
     {
         _roomRepo = new Mock<IRoomRepository>();
-        _service = new RoomService(_roomRepo.Object);
+        _logger = new Mock<ILogger<RoomService>>();
+        _service = new RoomService(_roomRepo.Object, _logger.Object);
     }
 
     [Fact]
