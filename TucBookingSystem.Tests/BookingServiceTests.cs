@@ -256,7 +256,7 @@ public class BookingServiceTests
             new Booking { Id = 2, RoomId = 2, UserId = 2, Date = DateOnly.FromDateTime(DateTime.Today), StartTime = new TimeOnly(12, 0), EndTime = new TimeOnly(13, 0) }
         });
 
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllBookings();
 
         result.Should().HaveCount(2);
     }
