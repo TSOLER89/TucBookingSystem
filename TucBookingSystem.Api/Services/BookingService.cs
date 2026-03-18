@@ -170,18 +170,44 @@ public class BookingService : IBookingService
             Purpose = b.Purpose
         }).ToList();
     }
-        public async Task<List<BookingDto>> GetAllBookings()
-    {
-        var bookings = await _bookingRepository.GetAllAsync();
-        return bookings.Select(b => new BookingDto
-        {
-            Id = b.Id,
-            RoomId = b.RoomId,
-            RoomName = b.Room?.Name ?? string.Empty,
-            Date = b.Date,
-            StartTime = b.StartTime,
-            EndTime = b.EndTime,
-            Purpose = b.Purpose
-        }).ToList();
-    }
-}
+            public async Task<List<BookingDto>> GetAllBookings()
+            {
+                var bookings = await _bookingRepository.GetAllAsync();
+                return bookings.Select(b => new BookingDto
+                {
+                    Id = b.Id,
+                    RoomId = b.RoomId,
+                    RoomName = b.Room?.Name ?? string.Empty,
+                    Date = b.Date,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    Purpose = b.Purpose
+                }).ToList();
+            }
+
+            public async Task<List<BookingDto>> GetBookingsByRoomAndDateAsync(int roomId, DateOnly date)
+            {
+                _logger.LogInformation("Fetching bookings for room {RoomId} on date {Date}", roomId, date);
+
+                var bookings = await _bookingRepository.GetAllAsync();
+                var filteredBookings = bookings
+                    .Where(b => b.RoomId == roomId && b.Date == date)
+                    .OrderBy(b => b.StartTime)
+                    .Select(b => new BookingDto
+                    {
+                        Id = b.Id,
+                        RoomId = b.RoomId,
+                        RoomName = b.Room?.Name ?? string.Empty,
+                        Date = b.Date,
+                        StartTime = b.StartTime,
+                        EndTime = b.EndTime,
+                        Purpose = b.Purpose
+                    })
+                    .ToList();
+
+                _logger.LogInformation("Found {Count} bookings for room {RoomId} on {Date}", 
+                    filteredBookings.Count, roomId, date);
+
+                return filteredBookings;
+            }
+        }

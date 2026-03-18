@@ -8,6 +8,7 @@ public interface IBookingService
     Task<(bool Success, string Message, BookingDto? Booking)> CreateBookingAsync(CreateBookingDto dto);
     Task<(bool Success, string Message)> DeleteBookingAsync(int bookingId);
     Task<List<BookingDto>> GetAllBookings();
+    Task<List<BookingDto>> GetBookingsByRoomAndDateAsync(int roomId, DateOnly date);
 
     // Temporary admin-compatible methods kept to avoid changing page behavior.
     Task<List<BookingDto>> GetUserBookingsAsync(int userId);

@@ -1,4 +1,5 @@
 ﻿@using TucBookingSystem.Shared.DTOs
+@inject IBookingService BookingService
 
 <EditForm Model="BookingModel" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
@@ -6,7 +7,7 @@
 
     <div class="mb-3">
         <label class="form-label">Rum</label>
-        <InputSelect class="form-control" @bind-Value="BookingModel.RoomId">
+        <InputSelect class="form-control" @bind-Value="BookingModel.RoomId" @bind-Value:after="LoadBookedTimes">
             <option value="0">Välj rum</option>
             @foreach (var room in Rooms)
             {
@@ -17,8 +18,30 @@
 
     <div class="mb-3">
         <label class="form-label">Datum</label>
-        <InputDate class="form-control" @bind-Value="BookingModel.Date" />
+        <InputDate class="form-control" @bind-Value="BookingModel.Date" @bind-Value:after="LoadBookedTimes" />
     </div>
+
+    @if (BookedTimes.Any() && BookingModel.RoomId > 0)
+    {
+        <div class="alert alert-info mb-3">
+            <h6>📅 Upptagna tider (@BookingModel.Date.ToString("yyyy-MM-dd")):</h6>
+            <ul class="mb-0">
+                @foreach (var booking in BookedTimes)
+                {
+                    <li>
+                        🔴 @booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")
+                        <small class="text-muted">(@booking.Purpose)</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    else if (BookingModel.RoomId > 0 && BookingModel.Date != default)
+    {
+        <div class="alert alert-success mb-3">
+            ✅ Inga bokningar för detta rum på valt datum - rummet är helt ledigt!
+        </div>
+    }
 
     <div class="mb-3">
         <label class="form-label">Starttid</label>
@@ -74,6 +97,8 @@
     [Parameter]
     public EventCallback<string> EndTimeTextChanged { get; set; }
 
+    private List<BookingDto> BookedTimes { get; set; } = new();
+
     private async Task HandleSubmit()
     {
         await OnSubmitBooking.InvokeAsync();
@@ -91,6 +116,25 @@
         var value = e.Value?.ToString() ?? "09:00";
         EndTimeText = value;
         await EndTimeTextChanged.InvokeAsync(value);
+    }
+
+    private async Task LoadBookedTimes()
+    {
+        if (BookingModel.RoomId > 0 && BookingModel.Date != default)
+        {
+            try
+            {
+                BookedTimes = await BookingService.GetBookingsByRoomAndDateAsync(BookingModel.RoomId, BookingModel.Date);
+            }
+            catch
+            {
+                BookedTimes = new List<BookingDto>();
+            }
+        }
+        else
+        {
+            BookedTimes = new List<BookingDto>();
+        }
     }
 
     private List<string> TimeOptions = new()
