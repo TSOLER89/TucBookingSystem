@@ -67,6 +67,20 @@
     color: white;
 }
 
+.notification-badge {
+    background: #DE2724;
+    color: white;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 4px;
+    min-width: 18px;
+    text-align: center;
+    display: inline-block;
+    line-height: 1.4;
+}
+
 .logout-item {
     margin-top: auto;
     padding-top: 1rem;

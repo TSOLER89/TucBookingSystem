@@ -1,5 +1,6 @@
 @using TucBookingSystem.Client.Services
 @inject UserStateService UserState
+@inject INotificationService NotificationService
 @inject NavigationManager Nav
 @implements IDisposable
 
@@ -31,22 +32,48 @@
             </NavLink>
         </div>
 
+        @if (UserState.Role == "Admin")
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="nav-icon">⚙️</span> Admin
+                </NavLink>
+            </div>
+        }
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin">
-                <span class="nav-icon">⚙️</span> Admin
+            <NavLink class="nav-link" href="min-profil">
+                <span class="nav-icon">👤</span> Min profil
             </NavLink>
         </div>
 
-        <div class="nav-item px-3 logout-item">
-            <button class="nav-link logout-btn" @onclick="Logout">
-                <span class="nav-icon">🔓</span> Logga ut
-            </button>
-        </div>
+        @if (UserState.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link notification-link" href="min-profil" ActiveClass="">
+                    <span class="nav-icon">🔔</span> Notifikationer
+                    @if (_unreadCount > 0)
+                    {
+                        <span class="notification-badge">@_unreadCount</span>
+                    }
+                </NavLink>
+            </div>
+        }
+
+        @if (UserState.IsLoggedIn)
+        {
+            <div class="nav-item px-3 logout-item">
+                <button class="nav-link logout-btn" @onclick="Logout">
+                    <span class="nav-icon">🔓</span> Logga ut
+                </button>
+            </div>
+        }
     </nav>
 </div>
 
 @code {
     private bool _hasLoaded = false;
+    private int _unreadCount = 0;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -55,12 +82,38 @@
             await UserState.LoadStateAsync();
             _hasLoaded = true;
             StateHasChanged();
+
+            if (UserState.IsLoggedIn)
+                _ = LoadUnreadCount();
         }
     }
 
     protected override void OnInitialized()
     {
-        UserState.OnChange += StateHasChanged;
+        UserState.OnChange += OnUserStateChanged;
+    }
+
+    private async void OnUserStateChanged()
+    {
+        if (UserState.IsLoggedIn)
+            await LoadUnreadCount();
+        else
+            _unreadCount = 0;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadUnreadCount()
+    {
+        try
+        {
+            _unreadCount = await NotificationService.GetUnreadCountAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch
+        {
+            _unreadCount = 0;
+        }
     }
 
     private async void Logout()
@@ -71,6 +124,6 @@
 
     public void Dispose()
     {
-        UserState.OnChange -= StateHasChanged;
+        UserState.OnChange -= OnUserStateChanged;
     }
 }

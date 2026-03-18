@@ -1,7 +1,9 @@
 @page "/min-profil"
 @rendermode InteractiveServer
 @using TucBookingSystem.Client.Services
+@using TucBookingSystem.Shared.DTOs
 @inject UserStateService UserState
+@inject INotificationService NotificationService
 @inject NavigationManager Nav
 
 <div class="profile-page">
@@ -38,11 +40,54 @@
                 Boka Rum
             </a>
         </div>
+
+        <div class="profile-section notifications-section">
+            <div class="notifications-header">
+                <h3>
+                    🔔 Notifikationer
+                    @if (_unreadCount > 0)
+                    {
+                        <span class="notification-badge-profile">@_unreadCount olästa</span>
+                    }
+                </h3>
+                @if (_notifications.Any(n => !n.IsRead))
+                {
+                    <button class="mark-all-btn" @onclick="MarkAllAsRead">Markera alla som lästa</button>
+                }
+            </div>
+
+            @if (_isLoadingNotifications)
+            {
+                <p class="loading-text">Laddar notifikationer...</p>
+            }
+            else if (!_notifications.Any())
+            {
+                <p class="no-notifications">Inga notifikationer ännu.</p>
+            }
+            else
+            {
+                <div class="notifications-list">
+                    @foreach (var n in _notifications)
+                    {
+                        <div class="notification-item @(n.IsRead ? "read" : "unread")" @onclick="() => MarkAsRead(n)">
+                            <div class="notification-dot @(n.IsRead ? "" : "unread-dot")"></div>
+                            <div class="notification-content">
+                                <p class="notification-message">@n.Message</p>
+                                <span class="notification-time">@n.CreatedAt.ToLocalTime().ToString("dd MMM HH:mm")</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>
 
 @code {
     private bool _hasLoaded = false;
+    private List<NotificationDto> _notifications = new();
+    private int _unreadCount = 0;
+    private bool _isLoadingNotifications = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -57,9 +102,34 @@
             }
             else
             {
+                await LoadNotifications();
                 StateHasChanged();
             }
         }
+    }
+
+    private async Task LoadNotifications()
+    {
+        _isLoadingNotifications = true;
+        _notifications = await NotificationService.GetMyNotificationsAsync();
+        _unreadCount = _notifications.Count(n => !n.IsRead);
+        _isLoadingNotifications = false;
+    }
+
+    private async Task MarkAsRead(NotificationDto notification)
+    {
+        if (notification.IsRead) return;
+        await NotificationService.MarkAsReadAsync(notification.Id);
+        notification.IsRead = true;
+        _unreadCount = _notifications.Count(n => !n.IsRead);
+    }
+
+    private async Task MarkAllAsRead()
+    {
+        await NotificationService.MarkAllAsReadAsync();
+        foreach (var n in _notifications)
+            n.IsRead = true;
+        _unreadCount = 0;
     }
 
     private string GetFirstName()

@@ -9,15 +9,18 @@ public class BookingService : IBookingService
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
     private readonly ILogger<BookingService> _logger;
+    private readonly INotificationService _notificationService;
 
     public BookingService(
-        IBookingRepository bookingRepository, 
+        IBookingRepository bookingRepository,
         IRoomRepository roomRepository,
-        ILogger<BookingService> logger)
+        ILogger<BookingService> logger,
+        INotificationService notificationService)
     {
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
         _logger = logger;
+        _notificationService = notificationService;
     }
     public async Task<List<BookingDto>> GetAllBookingsAsync()
     {
@@ -109,8 +112,11 @@ public class BookingService : IBookingService
         };
 
         var created = await _bookingRepository.CreateAsync(booking);
-        _logger.LogInformation("Booking {BookingId} created successfully for user {UserId}", 
+        _logger.LogInformation("Booking {BookingId} created successfully for user {UserId}",
             created.Id, userId);
+
+        await _notificationService.CreateAsync(userId,
+            $"Din bokning för {room.Name} den {dto.Date} ({dto.StartTime:HH\\:mm}–{dto.EndTime:HH\\:mm}) är bekräftad.");
 
         return (true, "Bokning skapad.", new BookingDto
         {
@@ -152,6 +158,10 @@ public class BookingService : IBookingService
         }
 
         _logger.LogInformation("Booking {BookingId} deleted successfully", bookingId);
+
+        await _notificationService.CreateAsync(userId,
+            $"Din bokning (ID: {bookingId}) har avbokats.");
+
         return (true, "Bokningen avbokades.");
     }
 

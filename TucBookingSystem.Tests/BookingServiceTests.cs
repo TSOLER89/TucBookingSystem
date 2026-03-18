@@ -13,6 +13,7 @@ public class BookingServiceTests
     private readonly Mock<IBookingRepository> _bookingRepo;
     private readonly Mock<IRoomRepository> _roomRepo;
     private readonly Mock<ILogger<BookingService>> _logger;
+    private readonly Mock<INotificationService> _notificationService;
     private readonly BookingService _service;
 
     public BookingServiceTests()
@@ -20,7 +21,9 @@ public class BookingServiceTests
         _bookingRepo = new Mock<IBookingRepository>();
         _roomRepo = new Mock<IRoomRepository>();
         _logger = new Mock<ILogger<BookingService>>();
-        _service = new BookingService(_bookingRepo.Object, _roomRepo.Object, _logger.Object);
+        _notificationService = new Mock<INotificationService>();
+        _notificationService.Setup(n => n.CreateAsync(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _service = new BookingService(_bookingRepo.Object, _roomRepo.Object, _logger.Object, _notificationService.Object);
     }
 
     [Fact]

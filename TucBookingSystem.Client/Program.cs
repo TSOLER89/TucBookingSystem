@@ -36,6 +36,8 @@ public partial class Program
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<ProtectedSessionStorage>();
         builder.Services.AddScoped<UserStateService>();
+        builder.Services.AddScoped<NotificationService>();
+        builder.Services.AddScoped<INotificationService>(sp => sp.GetRequiredService<NotificationService>());
 
         var app = builder.Build();
 
