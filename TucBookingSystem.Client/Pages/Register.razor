@@ -47,18 +47,25 @@
         <p class="error">@errorMessage</p>
     }
 
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <p class="success">@successMessage</p>
+    }
+
 </div>
 </div>
 
 @code {
     private RegisterRequestDto registerModel = new();
     private string errorMessage = "";
+    private string successMessage = "";
     private string firstName = "";
     private string lastName = "";
 
     private async Task HandleRegister(EditContext editContext)
     {
         errorMessage = "";
+        successMessage = "";
 
         if (!editContext.Validate())
         {
@@ -74,7 +81,7 @@
         if (result != null)
         {
             Console.WriteLine($"Registration successful for user: {result.FullName}");
-            Nav.NavigateTo("/login");
+            Nav.NavigateTo("/login?registered=true");
         }
         else
         {
