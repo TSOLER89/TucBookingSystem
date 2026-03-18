@@ -71,6 +71,13 @@ public class BookingService : IBookingService
             return (false, "Du kan inte boka ett datum i det förflutna.", null);
         }
 
+        var dayOfWeek = dto.Date.DayOfWeek;
+        if (dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday)
+        {
+            _logger.LogWarning("Booking creation failed: Weekend booking attempt for {Date}", dto.Date);
+            return (false, "Du kan inte boka rum på helger. Skolan är stängd lördagar och söndagar.", null);
+        }
+
         if (dto.StartTime < new TimeOnly(8, 0) || dto.EndTime > new TimeOnly(20, 0))
         {
             _logger.LogWarning("Booking creation failed: Time outside allowed hours");
