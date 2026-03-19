@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Endpoints;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Routing;
@@ -38,6 +39,10 @@ public partial class Program
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<ProtectedSessionStorage>();
         builder.Services.AddScoped<UserStateService>();
+        builder.Services.AddScoped<IUserStateService>(sp => sp.GetRequiredService<UserStateService>());
+        builder.Services.AddAuthorizationCore();
+        builder.Services.AddCascadingAuthenticationState();
+        builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
         var app = builder.Build();
 

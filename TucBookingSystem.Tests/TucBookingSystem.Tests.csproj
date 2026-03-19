@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TucBookingSystem.Api\TucBookingSystem.Api.csproj" />
+    <ProjectReference Include="..\TucBookingSystem.Client\TucBookingSystem.Client.csproj" />
   </ItemGroup>
 
 </Project>

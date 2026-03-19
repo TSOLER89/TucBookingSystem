@@ -1,4 +1,5 @@
 @page "/admin"
+@attribute [Authorize(Roles = "Admin")]
 @using Microsoft.AspNetCore.Authorization
 @using TucBookingSystem.Client.Components.Shared
 @using TucBookingSystem.Client.Services

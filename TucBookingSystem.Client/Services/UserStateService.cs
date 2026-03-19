@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace TucBookingSystem.Client.Services;
 
-public class UserStateService
+public class UserStateService : IUserStateService
 {
     private readonly ProtectedSessionStorage _sessionStorage;
     private readonly HttpClient _httpClient;
