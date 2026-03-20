@@ -11,6 +11,12 @@
 
 <div class="booking-page">
     <h3 class="booking-title">Bokningar</h3>
+    <div class="booking-card mt-4">
+        <h4 class="booking-subtitle">Mina bokningar</h4>
+
+        <BookingList Bookings="@bookings"
+                     OnDeleteBooking="@HandleDeleteBooking" />
+    </div>
 
     @if (isLoading)
     {
@@ -41,13 +47,7 @@
                          EndTimeTextChanged="@HandleEndTimeChanged"
                          OnSubmitBooking="@HandleCreateBooking" />
         </div>
-
-        <div class="booking-card mt-4">
-            <h4 class="booking-subtitle">Mina bokningar</h4>
-
-            <BookingList Bookings="@bookings"
-                         OnDeleteBooking="@HandleDeleteBooking" />
-        </div>
+       
     }
 </div>
 
