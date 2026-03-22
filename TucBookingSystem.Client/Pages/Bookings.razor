@@ -171,6 +171,15 @@
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
+        var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+        var wasPassed = false;
+
+        if (booking is not null)
+        {
+            var bookingEnd = booking.Date.ToDateTime(booking.EndTime);
+            wasPassed = bookingEnd < DateTime.Now;
+        }
+
         var result = await BookingService.DeleteBookingAsync(bookingId);
 
         if (!result.Success)
@@ -179,7 +188,10 @@
             return;
         }
 
-        successMessage = "Bokningen avbokades.";
+        successMessage = wasPassed
+            ? "Bokningen raderades."
+            : "Bokningen avbokades.";
+
         bookings = await BookingService.GetMyBookingsAsync();
-    }
+    }dot
 }
