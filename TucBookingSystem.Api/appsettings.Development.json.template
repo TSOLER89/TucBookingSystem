@@ -1,0 +1,16 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=tucbookingsystem.db"
+  },
+  "Jwt": {
+    "Key": "DettaArEnSuperHemligNyckelSomArMinst32Tecken",
+    "Issuer": "TucBookingSystem",
+    "Audience": "TucBookingSystemUsers"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}

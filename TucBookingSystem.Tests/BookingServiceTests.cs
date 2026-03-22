@@ -60,6 +60,54 @@ public class BookingServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_ShouldFail_WhenBookingOnSaturday()
+    {
+        // Hitta nästa lördag
+        var today = DateTime.Today;
+        var daysUntilSaturday = ((int)DayOfWeek.Saturday - (int)today.DayOfWeek + 7) % 7;
+        if (daysUntilSaturday == 0) daysUntilSaturday = 7;
+        var nextSaturday = today.AddDays(daysUntilSaturday);
+
+        var dto = new CreateBookingDto
+        {
+            RoomId = 1,
+            Date = DateOnly.FromDateTime(nextSaturday),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Du kan inte boka rum på helger. Skolan är stängd lördagar och söndagar.");
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldFail_WhenBookingOnSunday()
+    {
+        // Hitta nästa söndag
+        var today = DateTime.Today;
+        var daysUntilSunday = ((int)DayOfWeek.Sunday - (int)today.DayOfWeek + 7) % 7;
+        if (daysUntilSunday == 0) daysUntilSunday = 7;
+        var nextSunday = today.AddDays(daysUntilSunday);
+
+        var dto = new CreateBookingDto
+        {
+            RoomId = 1,
+            Date = DateOnly.FromDateTime(nextSunday),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.CreateAsync(1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Du kan inte boka rum på helger. Skolan är stängd lördagar och söndagar.");
+    }
+
+    [Fact]
     public async Task CreateAsync_ShouldFail_WhenStartTimeTooEarly()
     {
         var dto = new CreateBookingDto
@@ -205,7 +253,7 @@ public class BookingServiceTests
             new Booking { Id = 2, RoomId = 2, UserId = 2, Date = DateOnly.FromDateTime(DateTime.Today), StartTime = new TimeOnly(12, 0), EndTime = new TimeOnly(13, 0) }
         });
 
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllBookings();
 
         result.Should().HaveCount(2);
     }

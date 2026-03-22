@@ -46,6 +46,18 @@ public class BookingsController : ControllerBase
         return Ok(result.Booking);
     }
 
+    [HttpPost("admin/{userId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> CreateForUser(int userId, CreateBookingDto dto)
+    {
+        var result = await _bookingService.CreateAsync(userId, dto);
+
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Booking);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
@@ -67,6 +79,17 @@ public class BookingsController : ControllerBase
     public async Task<ActionResult<List<BookingDto>>> GetAll()
     {
         var bookings = await _bookingService.GetAllBookings();
+        return Ok(bookings);
+    }
+
+    [HttpGet("room/{roomId}/date/{date}")]
+    [AllowAnonymous] // Alla kan se upptagna tider
+    public async Task<ActionResult<List<BookingDto>>> GetBookingsByRoomAndDate(int roomId, string date)
+    {
+        if (!DateOnly.TryParse(date, out var parsedDate))
+            return BadRequest("Ogiltigt datumformat. Använd YYYY-MM-DD.");
+
+        var bookings = await _bookingService.GetBookingsByRoomAndDateAsync(roomId, parsedDate);
         return Ok(bookings);
     }
 }

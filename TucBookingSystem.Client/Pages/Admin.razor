@@ -1,28 +1,31 @@
-﻿@page "/admin"
-@using TucBookingSystem.Shared.DTOs
-@using TucBookingSystem.Client.Components.Shared
+@page "/admin"
+@attribute [Authorize(Roles = "Admin")]
 @using Microsoft.AspNetCore.Authorization
+@using TucBookingSystem.Client.Components.Shared
 @using TucBookingSystem.Client.Services
+@using TucBookingSystem.Shared.DTOs
 
 @inject IBookingService BookingService
 @inject IRoomService RoomService
+@inject IUserService UserService
+@inject UserStateService UserState
+@inject NavigationManager NavigationManager
 
 @* @attribute [Authorize(Roles = "Admin")] *@
 
 <PageTitle>Admin Sida</PageTitle>
 
 <div class="booking-page">
-    <h3 class="booking-title">Admin - Hantera alla bokningar</h3>
+    <h3 class="booking-title">Admin - Hantera bokningar och rum</h3>
 
     @if (isLoading)
     {
         <div class="booking-card">
-            <p class="booking-loading">Laddar bokningar...</p>
+            <p class="booking-loading">Laddar adminpanelen...</p>
         </div>
     }
     else
     {
-        <!-- SKAPA BOKNING -->
         <div class="booking-card">
             <h4 class="booking-subtitle">Skapa ny bokning</h4>
 
@@ -36,21 +39,79 @@
                 <div class="alert alert-danger">@errorMessage</div>
             }
 
-            <BookingForm BookingModel="@newBooking"
-                         Rooms="@rooms"
-                         StartTimeText="@startTimeText"
-                         EndTimeText="@endTimeText"
-                         StartTimeTextChanged="@HandleStartTimeChanged"
-                         EndTimeTextChanged="@HandleEndTimeChanged"
-                         OnSubmitBooking="@HandleCreateBooking" />
+            <BookingForm BookingModel="@newBooking"                         ShowUserSelector="true"                         Users="@users"                         SelectedUserId="@selectedUserId"
+                         SelectedUserIdChanged="@HandleSelectedUserChanged"                         Rooms="@rooms"                         StartTimeText="@startTimeText"
+                         EndTimeText="@endTimeText"                         StartTimeTextChanged="@HandleStartTimeChanged"
+                         EndTimeTextChanged="@HandleEndTimeChanged"                         OnSubmitBooking="@HandleCreateBooking" />
         </div>
 
-        <!-- LISTA BOKNINGAR -->
+        <div class="booking-card mt-4">
+            <h4 class="booking-subtitle">Hantera rum</h4>
+
+            <EditForm Model="@newRoom" OnValidSubmit="@HandleCreateRoom">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Namn</label>
+                        <InputText class="form-control" @bind-Value="newRoom.Name" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Plats</label>
+                        <InputText class="form-control" @bind-Value="newRoom.Location" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Kapacitet</label>
+                        <InputNumber class="form-control" @bind-Value="newRoom.Capacity" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Beskrivning</label>
+                        <InputText class="form-control" @bind-Value="newRoom.Description" />
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Lägg till rum</button>
+                </div>
+            </EditForm>
+
+            <div class="mt-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Namn</th>
+                            <th>Plats</th>
+                            <th>Kapacitet</th>
+                            <th>Beskrivning</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var room in rooms)
+                        {
+                            <tr>
+                                <td>@room.Name</td>
+                                <td>@room.Location</td>
+                                <td>@room.Capacity</td>
+                                <td>@room.Description</td>
+                                <td>
+                                    <button type="button"                                            class="btn btn-danger btn-sm"
+                                            @onclick="() => HandleDeleteRoom(room.Id)">
+                                        Ta bort
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="booking-card mt-4">
             <h4 class="booking-subtitle">Alla bokningar</h4>
 
-            <BookingList Bookings="@bookings"
-                         OnDeleteBooking="@HandleDeleteBooking" />
+            <BookingList Bookings="@bookings"                         OnDeleteBooking="@HandleDeleteBooking" />
         </div>
     }
 </div>
@@ -58,22 +119,41 @@
 @code {
     private List<RoomDto> rooms = new();
     private List<BookingDto> bookings = new();
+    private List<UserDto> users = new();
 
     private CreateBookingDto newBooking = new()
     {
         Date = DateOnly.FromDateTime(DateTime.Today)
     };
 
+    private CreateRoomDto newRoom = new();
+    private int selectedUserId;
     private bool isLoading = true;
+    private bool isAuthorized;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
 
     private string startTimeText = "08:00";
     private string endTimeText = "09:00";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await UserState.LoadStateAsync();
+
+        if (!UserState.IsAdmin)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        isAuthorized = true;
         await LoadData();
+        StateHasChanged();
     }
 
     private async Task LoadData()
@@ -83,12 +163,13 @@
 
         try
         {
+            users = await UserService.GetAllAsync();
             rooms = await RoomService.GetAllAsync();
             bookings = await BookingService.GetAllBookings();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Kunde inte ladda bokningssidan: {ex.Message}";
+            errorMessage = $"Kunde inte ladda adminpanelen: {ex.Message}";
         }
         finally
         {
@@ -108,10 +189,27 @@
         return Task.CompletedTask;
     }
 
+    private Task HandleSelectedUserChanged(int userId)
+    {
+        selectedUserId = userId;
+        return Task.CompletedTask;
+    }
+
     private async Task HandleCreateBooking()
     {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
         errorMessage = string.Empty;
         successMessage = string.Empty;
+
+        if (selectedUserId == 0)
+        {
+            errorMessage = "Du måste välja vilken användare bokningen ska skapas för.";
+            return;
+        }
 
         if (newBooking.RoomId == 0)
         {
@@ -134,10 +232,7 @@
         newBooking.StartTime = startTime;
         newBooking.EndTime = endTime;
 
-        // ⚠️ TEMP userId (ska senare komma från auth)
-        var userId = 1;
-
-        var result = await BookingService.CreateAsync(userId, newBooking);
+        var result = await BookingService.CreateForUserAsync(selectedUserId, newBooking);
 
         if (!result.Success)
         {
@@ -152,20 +247,69 @@
             Date = DateOnly.FromDateTime(DateTime.Today)
         };
 
+        selectedUserId = 0;
         startTimeText = "08:00";
         endTimeText = "09:00";
 
         bookings = await BookingService.GetAllBookings();
     }
 
-    private async Task HandleDeleteBooking(int bookingId)
+    private async Task HandleCreateRoom()
     {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
         errorMessage = string.Empty;
         successMessage = string.Empty;
 
-        // ⚠️ TEMP userId
-        var userId = 1;
+        try
+        {
+            await RoomService.CreateAsync(newRoom);
+            newRoom = new CreateRoomDto();
+            rooms = await RoomService.GetAllAsync();
+            successMessage = "Rummet lades till.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte lägga till rum: {ex.Message}";
+        }
+    }
 
+    private async Task HandleDeleteRoom(int roomId)
+    {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            await RoomService.DeleteAsync(roomId);
+            rooms = await RoomService.GetAllAsync();
+            successMessage = "Rummet togs bort.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte ta bort rum: {ex.Message}";
+        }
+    }
+
+    private async Task HandleDeleteBooking(int bookingId)
+    {
+        if (!isAuthorized)
+        {
+            return;
+        }
+
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        var userId = UserState.UserId;
         var result = await BookingService.DeleteAsync(bookingId, userId);
 
         if (!result.Success)

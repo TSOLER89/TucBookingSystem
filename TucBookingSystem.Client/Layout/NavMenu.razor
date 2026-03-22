@@ -31,16 +31,37 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin">
-                <span class="nav-icon">⚙️</span> Admin
-            </NavLink>
-        </div>
+        @if (UserState.IsAdmin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="nav-icon">⚙️</span> Admin
+                </NavLink>
+            </div>
+        }
+
+        @if (UserState.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="min-profil">
+                    <span class="nav-icon">👤</span> Min profil
+                </NavLink>
+            </div>
+        }
 
         <div class="nav-item px-3 logout-item">
-            <button class="nav-link logout-btn" @onclick="Logout">
-                <span class="nav-icon">🔓</span> Logga ut
-            </button>
+            @if (UserState.IsLoggedIn)
+            {
+                <button class="nav-link logout-btn" @onclick="Logout">
+                    <span class="nav-icon">🔓</span> Logga ut
+                </button>
+            }
+            else
+            {
+                <button class="nav-link logout-btn" @onclick="Login">
+                    <span class="nav-icon">🔐</span> Logga in
+                </button>
+            }
         </div>
     </nav>
 </div>
@@ -66,6 +87,11 @@
     private async void Logout()
     {
         await UserState.LogoutAsync();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    private void Login()
+    {
         Nav.NavigateTo("/login", forceLoad: true);
     }
 

@@ -1,28 +1,65 @@
-﻿@using TucBookingSystem.Shared.DTOs
+@using TucBookingSystem.Client.Services
+@using TucBookingSystem.Shared.DTOs
+@inject IBookingService BookingService
 
 <EditForm Model="BookingModel" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
+    @if (ShowUserSelector)
+    {
+        <div class="mb-3">
+            <label class="form-label">Boka åt</label>
+            <select class="form-control" value="@SelectedUserId" @onchange="HandleSelectedUserChanged">
+                <option value="0">Välj användare</option>
+                @foreach (var user in Users)
+                {
+                    <option value="@user.Id">@user.FullName (@user.Email)</option>
+                }
+            </select>
+        </div>
+    }
+
     <div class="mb-3">
         <label class="form-label">Rum</label>
-        <InputSelect class="form-control" @bind-Value="BookingModel.RoomId">
+        <select class="form-control" value="@BookingModel.RoomId" @onchange="HandleRoomChanged">
             <option value="0">Välj rum</option>
             @foreach (var room in Rooms)
             {
                 <option value="@room.Id">@room.Name (@room.Location)</option>
             }
-        </InputSelect>
+        </select>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Datum</label>
-        <InputDate class="form-control" @bind-Value="BookingModel.Date" />
+        <input class="form-control" type="date" value="@DateValue" @onchange="HandleDateChanged" />
     </div>
+
+    @if (bookedTimes.Any() && BookingModel.RoomId > 0)
+    {
+        <div class="alert alert-info mb-3">
+            <h6>Upptagna tider (@BookingModel.Date.ToString("yyyy-MM-dd")):</h6>
+            <ul class="mb-0">
+                @foreach (var booking in bookedTimes)
+                {
+                    <li>
+                        @booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")
+                        <small class="text-muted">(@booking.Purpose)</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+    else if (BookingModel.RoomId > 0 && BookingModel.Date != default)
+    {
+        <div class="alert alert-success mb-3">
+            Inga bokningar för detta rum på valt datum.
+        </div>
+    }
 
     <div class="mb-3">
         <label class="form-label">Starttid</label>
-
         <select class="form-control" value="@StartTimeText" @onchange="HandleStartTimeChanged">
             @foreach (var time in TimeOptions)
             {
@@ -33,7 +70,6 @@
 
     <div class="mb-3">
         <label class="form-label">Sluttid</label>
-
         <select class="form-control" value="@EndTimeText" @onchange="HandleEndTimeChanged">
             @foreach (var time in TimeOptions)
             {
@@ -74,6 +110,21 @@
     [Parameter]
     public EventCallback<string> EndTimeTextChanged { get; set; }
 
+    [Parameter]
+    public bool ShowUserSelector { get; set; }
+
+    [Parameter]
+    public List<UserDto> Users { get; set; } = new();
+
+    [Parameter]
+    public int SelectedUserId { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedUserIdChanged { get; set; }
+
+    private List<BookingDto> bookedTimes { get; set; } = new();
+    private string DateValue => BookingModel.Date == default ? string.Empty : BookingModel.Date.ToString("yyyy-MM-dd");
+
     private async Task HandleSubmit()
     {
         await OnSubmitBooking.InvokeAsync();
@@ -93,20 +144,74 @@
         await EndTimeTextChanged.InvokeAsync(value);
     }
 
-    private List<string> TimeOptions = new()
-{
-    "08:00","08:30",
-    "09:00","09:30",
-    "10:00","10:30",
-    "11:00","11:30",
-    "12:00","12:30",
-    "13:00","13:30",
-    "14:00","14:30",
-    "15:00","15:30",
-    "16:00","16:30",
-    "17:00","17:30",
-    "18:00","18:30",
-    "19:00","19:30",
-    "20:00"
-};
+    private async Task HandleSelectedUserChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "0";
+        if (!int.TryParse(value, out var userId))
+        {
+            userId = 0;
+        }
+
+        SelectedUserId = userId;
+        await SelectedUserIdChanged.InvokeAsync(userId);
+    }
+
+    private async Task HandleRoomChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "0";
+        if (!int.TryParse(value, out var roomId))
+        {
+            roomId = 0;
+        }
+
+        BookingModel.RoomId = roomId;
+        await LoadBookedTimes();
+    }
+
+    private async Task HandleDateChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (DateOnly.TryParse(value, out var date))
+        {
+            BookingModel.Date = date;
+        }
+
+        await LoadBookedTimes();
+    }
+
+    private async Task LoadBookedTimes()
+    {
+        if (BookingModel.RoomId > 0 && BookingModel.Date != default)
+        {
+            try
+            {
+                bookedTimes = await BookingService.GetBookingsByRoomAndDateAsync(BookingModel.RoomId, BookingModel.Date);
+            }
+            catch
+            {
+                bookedTimes = new List<BookingDto>();
+            }
+        }
+        else
+        {
+            bookedTimes = new List<BookingDto>();
+        }
+    }
+
+    private static readonly List<string> TimeOptions = new()
+    {
+        "08:00","08:30",
+        "09:00","09:30",
+        "10:00","10:30",
+        "11:00","11:30",
+        "12:00","12:30",
+        "13:00","13:30",
+        "14:00","14:30",
+        "15:00","15:30",
+        "16:00","16:30",
+        "17:00","17:30",
+        "18:00","18:30",
+        "19:00","19:30",
+        "20:00"
+    };
 }

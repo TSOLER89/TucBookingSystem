@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Endpoints;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Routing;
@@ -31,11 +32,17 @@ public partial class Program
         // -----------------------------------------
         builder.Services.AddScoped<RoomService>();
         builder.Services.AddScoped<BookingService>();
+        builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<IRoomService>(sp => sp.GetRequiredService<RoomService>());
         builder.Services.AddScoped<IBookingService>(sp => sp.GetRequiredService<BookingService>());
+        builder.Services.AddScoped<IUserService>(sp => sp.GetRequiredService<UserService>());
         builder.Services.AddScoped<AuthService>();
         builder.Services.AddScoped<ProtectedSessionStorage>();
         builder.Services.AddScoped<UserStateService>();
+        builder.Services.AddScoped<IUserStateService>(sp => sp.GetRequiredService<UserStateService>());
+        builder.Services.AddAuthorizationCore();
+        builder.Services.AddCascadingAuthenticationState();
+        builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
         var app = builder.Build();
 

@@ -11,6 +11,10 @@ else
             <thead>
                 <tr>
                     <th>Rum</th>
+                    @if (ShowUserColumn)
+                    {
+                        <th>Användare</th>
+                    }
                     <th>Datum</th>
                     <th>Start</th>
                     <th>Slut</th>
@@ -23,13 +27,16 @@ else
                 {
                     <tr>
                         <td>@booking.RoomName</td>
+                        @if (ShowUserColumn)
+                        {
+                            <td>@booking.UserName</td>
+                        }
                         <td>@booking.Date.ToString("yyyy-MM-dd")</td>
                         <td>@booking.StartTime.ToString("HH:mm")</td>
                         <td>@booking.EndTime.ToString("HH:mm")</td>
                         <td>@booking.Purpose</td>
                         <td>
-                            <button class="btn btn-danger btn-sm"
-                                    @onclick="() => DeleteClicked(booking.Id)">
+                            <button class="btn btn-danger btn-sm"                            @onclick="() => DeleteClicked(booking.Id)">
                                 Avboka
                             </button>
                         </td>
@@ -51,4 +58,6 @@ else
     {
         await OnDeleteBooking.InvokeAsync(bookingId);
     }
+
+    private bool ShowUserColumn => Bookings.Any(b => !string.IsNullOrWhiteSpace(b.UserName));
 }
