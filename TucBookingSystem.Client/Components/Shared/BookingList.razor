@@ -36,8 +36,9 @@ else
                         <td>@booking.EndTime.ToString("HH:mm")</td>
                         <td>@booking.Purpose</td>
                         <td>
-                            <button class="btn btn-danger btn-sm"                            @onclick="() => DeleteClicked(booking.Id)">
-                                Avboka
+                            <button class="btn btn-danger btn-sm"
+                                    @onclick="() => DeleteClicked(booking.Id)">
+                                @(IsBookingPassed(booking) ? "Radera" : "Avboka")
                             </button>
                         </td>
                     </tr>
@@ -60,4 +61,10 @@ else
     }
 
     private bool ShowUserColumn => Bookings.Any(b => !string.IsNullOrWhiteSpace(b.UserName));
+
+    private bool IsBookingPassed(BookingDto booking)
+    {
+        var bookingEnd = booking.Date.ToDateTime(booking.EndTime);
+        return bookingEnd < DateTime.Now;
+    }
 }
