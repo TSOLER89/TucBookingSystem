@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -40,9 +41,11 @@ public class AuthService : IAuthService
         {
             FullName = dto.FullName,
             Email = dto.Email,
-            PasswordHash = dto.Password, // enkel version just nu
             Role = "User"
         };
+
+        var hasher = new PasswordHasher<User>();
+        user.PasswordHash = hasher.HashPassword(user, dto.Password);
 
         await _userRepository.AddAsync(user);
         _logger.LogInformation("User registered successfully: {Email}", dto.Email);
@@ -62,13 +65,19 @@ public class AuthService : IAuthService
 
         var user = await _userRepository.GetByEmailAsync(dto.Email);
 
+        _logger.LogInformation("Stored password hash: {Hash}", user?.PasswordHash);
+
         if (user is null)
         {
             _logger.LogWarning("Login failed: User with email {Email} not found", dto.Email);
             return null;
         }
 
-        if (user.PasswordHash != dto.Password)
+        var hasher = new PasswordHasher<User>();
+        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+        _logger.LogInformation("Password verification result: {Result}", result);
+
+        if (result == PasswordVerificationResult.Failed)
         {
             _logger.LogWarning("Login failed: Invalid password for email {Email}", dto.Email);
             return null;
