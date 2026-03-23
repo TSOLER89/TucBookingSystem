@@ -74,19 +74,22 @@
 
         registerModel.FullName = $"{firstName} {lastName}";
 
-        Console.WriteLine($"Registering user: {registerModel.FullName}, Email: {registerModel.Email}");
-
-        var result = await AuthService.RegisterAsync(registerModel);
-
-        if (result != null)
+        try
         {
-            Console.WriteLine($"Registration successful for user: {result.FullName}");
-            Nav.NavigateTo("/login?registered=true");
+            var result = await AuthService.RegisterAsync(registerModel);
+
+            if (result != null)
+            {
+                Nav.NavigateTo("/login?registered=true");
+            }
+            else
+            {
+                errorMessage = "Registreringen misslyckades. E-postadressen kan redan finnas.";
+            }
         }
-        else
+        catch
         {
-            Console.WriteLine("Registration failed");
-            errorMessage = "Registreringen misslyckades. E-postadressen kan redan finnas.";
+            errorMessage = "Kunde inte ansluta till servern. Försök igen senare.";
         }
     }
 }
