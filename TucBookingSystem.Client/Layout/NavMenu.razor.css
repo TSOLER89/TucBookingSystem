@@ -17,20 +17,82 @@
 
 .top-row {
     min-height: 3.5rem;
-    background-color: #2E354F;
-    border-bottom: 2px solid #DE2724;
+    background: linear-gradient(135deg, #1e2a4a 0%, #0d1117 100%);
+    border-bottom: 4px solid rgba(255, 255, 255, 0.3);
 }
 
 .navbar-brand {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: white !important;
-    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    padding: 0.4rem 0;
+}
+
+.brand-logo {
+    height: 42px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand-tuc {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #DE2724;
+    letter-spacing: 3px;
+    line-height: 1;
+}
+
+.brand-sub {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+    .brand-logo {
+        height: 34px;
+    }
+
+    .brand-tuc {
+        font-size: 1.3rem;
+    }
 }
 
 .nav-icon {
-    margin-right: 0.5rem;
-    font-size: 1rem;
+    font-size: 1.15rem;
+    width: 1.4rem;
+    text-align: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+
+.nav-link:hover .nav-icon,
+.nav-link.active .nav-icon {
+    transform: scale(1.2);
+}
+
+.bi-house-door-fill     { color: #60a5fa; }
+.bi-calendar-check-fill { color: #34d399; }
+.bi-door-open-fill      { color: #fb923c; }
+.bi-shield-fill-check   { color: #c084fc; }
+.bi-person-fill         { color: #38bdf8; }
+.bi-box-arrow-right     { color: #f87171; }
+.bi-box-arrow-in-right  { color: #4ade80; }
+
+.nav-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin: 0.5rem 1rem 0;
 }
 
 .nav-item {
@@ -39,8 +101,14 @@
 }
 
     .nav-item:first-of-type {
-        padding-top: 1rem;
+        padding-top: 1.5rem;
     }
+
+@media (max-width: 640px) {
+    .nav-item:first-of-type {
+        padding-top: 0.5rem;
+    }
+}
 
     .nav-item ::deep .nav-link {
         color: #D2CDC8;
@@ -97,7 +165,7 @@
 
 .nav-scrollable {
     display: none;
-    background-color: #2E354F;
+    background: linear-gradient(180deg, #1a2340 0%, #0d1117 100%);
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {

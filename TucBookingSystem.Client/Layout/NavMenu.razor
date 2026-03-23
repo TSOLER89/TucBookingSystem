@@ -5,29 +5,36 @@
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">TUC Bokningssystem</a>
+        <a class="navbar-brand" href="">
+            <img src="/tuclogo-bg.png" class="brand-logo" alt="TUC" />
+            <div class="brand-text">
+                <span class="brand-tuc">TUC</span>
+                <span class="brand-sub">Bokningssystem</span>
+            </div>
+        </a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" autocomplete="off" @key="@Nav.Uri" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').checked = false">
+    <hr class="nav-divider" />
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="nav-icon">🏠</span> Home
+                <i class="bi bi-house-door-fill nav-icon"></i> Hem
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="bookings">
-                <span class="nav-icon">📅</span> Bokningar
+                <i class="bi bi-calendar-check-fill nav-icon"></i> Bokningar
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="rooms">
-                <span class="nav-icon">🚪</span> Rum
+                <i class="bi bi-door-open-fill nav-icon"></i> Rum
             </NavLink>
         </div>
 
@@ -35,7 +42,7 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="admin">
-                    <span class="nav-icon">⚙️</span> Admin
+                    <i class="bi bi-shield-fill-check nav-icon"></i> Admin
                 </NavLink>
             </div>
         }
@@ -44,7 +51,7 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="min-profil">
-                    <span class="nav-icon">👤</span> Min profil
+                    <i class="bi bi-person-fill nav-icon"></i> Min profil
                 </NavLink>
             </div>
         }
@@ -53,13 +60,13 @@
             @if (UserState.IsLoggedIn)
             {
                 <button class="nav-link logout-btn" @onclick="Logout">
-                    <span class="nav-icon">🔓</span> Logga ut
+                    <i class="bi bi-box-arrow-right nav-icon"></i> Logga ut
                 </button>
             }
             else
             {
                 <button class="nav-link logout-btn" @onclick="Login">
-                    <span class="nav-icon">🔐</span> Logga in
+                    <i class="bi bi-box-arrow-in-right nav-icon"></i> Logga in
                 </button>
             }
         </div>
