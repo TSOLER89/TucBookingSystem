@@ -103,8 +103,11 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_ShouldReturnToken_WhenCredentialsAreCorrect()
     {
-        _userRepo.Setup(r => r.GetByEmailAsync("test@test.com"))
-                 .ReturnsAsync(new User { Id = 1, FullName = "Test User", Email = "test@test.com", PasswordHash = "password123", Role = "User" });
+        var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
+        var user = new User { Id = 1, FullName = "Test User", Email = "test@test.com", Role = "User" };
+        user.PasswordHash = hasher.HashPassword(user, "password123");
+
+        _userRepo.Setup(r => r.GetByEmailAsync("test@test.com")).ReturnsAsync(user);
 
         var dto = new LoginRequestDto
         {
