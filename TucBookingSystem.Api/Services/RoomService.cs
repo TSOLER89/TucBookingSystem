@@ -86,6 +86,30 @@ public class RoomService : IRoomService
 
     }
 
+    public async Task<RoomDto?> UpdateAsync(int id, UpdateRoomDto dto)
+    {
+        _logger.LogInformation("Updating room {RoomId}", id);
+
+        var room = new Room
+        {
+            Name = dto.Name,
+            Location = dto.Location,
+            Capacity = dto.Capacity,
+            Description = dto.Description,
+            IsActive = dto.IsActive
+        };
+
+        var updated = await _roomRepository.UpdateAsync(id, room);
+
+        if (!updated)
+        {
+            _logger.LogWarning("Room {RoomId} not found for update", id);
+            return null;
+        }
+
+        return await GetByIdAsync(id);
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
         _logger.LogInformation("Deleting room {RoomId}", id);

@@ -96,6 +96,50 @@ public class BookingService : IBookingService
         });
     }
 
+    public async Task<(bool Success, string Message, BookingDto? Booking)> UpdateAsync(int bookingId, int userId, UpdateBookingDto dto)
+    {
+        _logger.LogInformation("Updating booking {BookingId} by user {UserId}", bookingId, userId);
+
+        var existing = await _bookingRepository.GetByIdAsync(bookingId);
+
+        if (existing is null)
+            return (false, "Bokningen finns inte.", null);
+
+        if (existing.UserId != userId)
+            return (false, "Du får bara ändra dina egna bokningar.", null);
+
+        if (dto.StartTime >= dto.EndTime)
+            return (false, "Starttid måste vara före sluttid.", null);
+
+        if (dto.Date < DateOnly.FromDateTime(DateTime.Today))
+            return (false, "Du kan inte boka ett datum i det förflutna.", null);
+
+        var dayOfWeek = dto.Date.DayOfWeek;
+        if (dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday)
+            return (false, "Du kan inte boka rum på helger. Skolan är stängd lördagar och söndagar.", null);
+
+        if (dto.StartTime < new TimeOnly(8, 0) || dto.EndTime > new TimeOnly(20, 0))
+            return (false, "Bokningar måste vara mellan 08:00 och 20:00.", null);
+
+        var hasConflict = await _bookingRepository.HasConflictAsync(existing.RoomId, dto.Date, dto.StartTime, dto.EndTime);
+        if (hasConflict)
+            return (false, "Rummet är redan bokat den tiden.", null);
+
+        var updated = await _bookingRepository.UpdateAsync(bookingId, new Booking
+        {
+            Date = dto.Date,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            Purpose = dto.Purpose
+        });
+
+        if (!updated)
+            return (false, "Kunde inte uppdatera bokningen.", null);
+
+        var result = await _bookingRepository.GetByIdAsync(bookingId);
+        return (true, "Bokningen uppdaterades.", MapBookingDto(result!));
+    }
+
     public async Task<(bool Success, string Message)> DeleteAsync(int bookingId, int userId)
     {
         _logger.LogInformation("Attempting to delete booking {BookingId} by user {UserId}", bookingId, userId);

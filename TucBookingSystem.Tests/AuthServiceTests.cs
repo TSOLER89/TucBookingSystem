@@ -86,8 +86,12 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_ShouldReturnNull_WhenPasswordIsWrong()
     {
+        var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
+        var user = new User { Email = "test@test.com" };
+        user.PasswordHash = hasher.HashPassword(user, "correctpassword");
+
         _userRepo.Setup(r => r.GetByEmailAsync("test@test.com"))
-                 .ReturnsAsync(new User { Email = "test@test.com", PasswordHash = "correctpassword" });
+                 .ReturnsAsync(user);
 
         var dto = new LoginRequestDto
         {

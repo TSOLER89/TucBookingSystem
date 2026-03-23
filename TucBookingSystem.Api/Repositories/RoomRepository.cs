@@ -39,6 +39,7 @@ public class RoomRepository : IRoomRepository
         existing.Name = room.Name;
         existing.Capacity = room.Capacity;
         existing.Location = room.Location;
+        existing.Description = room.Description;
         existing.IsActive = room.IsActive;
 
         await _context.SaveChangesAsync();

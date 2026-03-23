@@ -64,4 +64,18 @@ public class BookingRepository : IBookingRepository
             .Include(b => b.User)
             .FirstOrDefaultAsync(b => b.Id == id);
     }
+
+    public async Task<bool> UpdateAsync(int id, Booking booking)
+    {
+        var existing = await _context.Bookings.FindAsync(id);
+        if (existing is null) return false;
+
+        existing.Date = booking.Date;
+        existing.StartTime = booking.StartTime;
+        existing.EndTime = booking.EndTime;
+        existing.Purpose = booking.Purpose;
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

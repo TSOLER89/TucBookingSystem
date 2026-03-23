@@ -86,4 +86,33 @@ public class RoomServiceTests
         result.Name.Should().Be("Stångån");
         result.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldReturnNull_WhenRoomNotFound()
+    {
+        _roomRepo.Setup(r => r.UpdateAsync(99, It.IsAny<Room>())).ReturnsAsync(false);
+
+        var dto = new UpdateRoomDto { Name = "Nytt namn", Location = "Linköping", Capacity = 10, IsActive = true };
+
+        var result = await _service.UpdateAsync(99, dto);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldReturnUpdatedRoom_WhenRoomExists()
+    {
+        var updatedRoom = new Room { Id = 1, Name = "Uppdaterat rum", Location = "Stockholm", Capacity = 12, Description = "Ny beskrivning", IsActive = true };
+
+        _roomRepo.Setup(r => r.UpdateAsync(1, It.IsAny<Room>())).ReturnsAsync(true);
+        _roomRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(updatedRoom);
+
+        var dto = new UpdateRoomDto { Name = "Uppdaterat rum", Location = "Stockholm", Capacity = 12, Description = "Ny beskrivning", IsActive = true };
+
+        var result = await _service.UpdateAsync(1, dto);
+
+        result.Should().NotBeNull();
+        result!.Name.Should().Be("Uppdaterat rum");
+        result.Capacity.Should().Be(12);
+    }
 }

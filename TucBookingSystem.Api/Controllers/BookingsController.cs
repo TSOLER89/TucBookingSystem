@@ -58,6 +58,22 @@ public class BookingsController : ControllerBase
         return Ok(result.Booking);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult> Update(int id, UpdateBookingDto dto)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (!int.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var result = await _bookingService.UpdateAsync(id, userId, dto);
+
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Booking);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
