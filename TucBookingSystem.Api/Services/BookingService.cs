@@ -8,15 +8,21 @@ public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IEmailService _emailService;
     private readonly ILogger<BookingService> _logger;
 
     public BookingService(
         IBookingRepository bookingRepository,
         IRoomRepository roomRepository,
+        IUserRepository userRepository,
+        IEmailService emailService,
         ILogger<BookingService> logger)
     {
         _bookingRepository = bookingRepository;
         _roomRepository = roomRepository;
+        _userRepository = userRepository;
+        _emailService = emailService;
         _logger = logger;
     }
 
@@ -63,6 +69,13 @@ public class BookingService : IBookingService
             return (false, "Rummet finns inte.", null);
         }
 
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user is null)
+        {
+            _logger.LogWarning("Booking creation failed: User {UserId} not found", userId);
+            return (false, "Användaren finns inte.", null);
+        }
+
         var hasConflict = await _bookingRepository.HasConflictAsync(dto.RoomId, dto.Date, dto.StartTime, dto.EndTime);
         if (hasConflict)
         {
@@ -84,11 +97,31 @@ public class BookingService : IBookingService
         _logger.LogInformation("Booking {BookingId} created successfully for user {UserId}",
             created.Id, userId);
 
+        try
+        {
+            await _emailService.SendBookingConfirmationEmailAsync(
+                user.Email,
+                user.FullName,
+                room.Name,
+                created.Date,
+                created.StartTime,
+                created.EndTime,
+                created.Purpose);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Booking {BookingId} was created but confirmation email could not be sent to user {UserId}",
+                created.Id,
+                userId);
+        }
+
         return (true, "Bokning skapad.", new BookingDto
         {
             Id = created.Id,
             RoomId = created.RoomId,
             RoomName = room.Name,
+            UserName = user.FullName,
             Date = created.Date,
             StartTime = created.StartTime,
             EndTime = created.EndTime,

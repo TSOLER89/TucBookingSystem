@@ -85,6 +85,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var startupLogger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("Startup");
 
     dbContext.Database.EnsureCreated();
 
@@ -108,6 +111,38 @@ using (var scope = app.Services.CreateScope())
     }
 
     await dbContext.SaveChangesAsync();
+
+    var emailSection = builder.Configuration.GetSection("Email");
+    var emailSettings = new Dictionary<string, string?>
+    {
+        ["SmtpServer"] = emailSection["SmtpServer"],
+        ["SmtpPort"] = emailSection["SmtpPort"],
+        ["FromName"] = emailSection["FromName"],
+        ["FromAddress"] = emailSection["FromAddress"],
+        ["Username"] = emailSection["Username"],
+        ["Password"] = emailSection["Password"]
+    };
+
+    var missingEmailKeys = emailSettings
+        .Where(setting => string.IsNullOrWhiteSpace(setting.Value))
+        .Select(setting => $"Email:{setting.Key}")
+        .ToList();
+
+    var placeholderEmailKeys = emailSettings
+        .Where(setting =>
+            !string.IsNullOrWhiteSpace(setting.Value) &&
+            (setting.Value.Contains("your-email", StringComparison.OrdinalIgnoreCase) ||
+             setting.Value.Contains("your-app-password", StringComparison.OrdinalIgnoreCase)))
+        .Select(setting => $"Email:{setting.Key}")
+        .ToList();
+
+    if (missingEmailKeys.Count != 0 || placeholderEmailKeys.Count != 0)
+    {
+        startupLogger.LogWarning(
+            "Email configuration is incomplete. Missing keys: {MissingKeys}. Placeholder keys: {PlaceholderKeys}. Booking and password reset emails will fail until this is configured.",
+            missingEmailKeys.Count == 0 ? "none" : string.Join(", ", missingEmailKeys),
+            placeholderEmailKeys.Count == 0 ? "none" : string.Join(", ", placeholderEmailKeys));
+    }
 }
 
 // Global Exception Handler
