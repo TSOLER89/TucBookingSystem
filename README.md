@@ -26,33 +26,43 @@ Läs [SECRETS_SETUP.md](SECRETS_SETUP.md) för mer information.
 
 ## 🚀 Funktioner
 
+### Core Features
 - ✅ **Användarhantering** - Registrering, login, lösenordsåterställning
-- ✅ **Rumsbokning** - Boka grupprum med tidsvalidering
+- ✅ **Rumsbokning** - Boka grupprum med tidsvalidering (08:00-20:00)
 - ✅ **Konflikthantering** - Automatisk detektering av dubbelbokningar
+- ✅ **Helgvalidering** - Blockerar bokningar på lördagar och söndagar
+- ✅ **Visa upptagna tider** - Se bokningar innan du försöker boka
 - ✅ **Admin-panel** - Hantera rum och användare
 - ✅ **Email-notifikationer** - För lösenordsåterställning
-- ✅ **JWT Authentication** - Säker autentisering
+- ✅ **JWT Authentication** - Säker autentisering med Bearer tokens
+- ✅ **Global Error Handling** - Strukturerad felhantering med logging
 
 ## 📋 Tech Stack
 
 ### Backend (API)
 - **.NET 10** - Modern C# 14
-- **ASP.NET Core Web API** - RESTful API
-- **Entity Framework Core** - ORM
+- **ASP.NET Core Web API** - RESTful API med Swagger dokumentation
+- **Entity Framework Core** - ORM med SQLite provider
 - **SQLite** - Databas (development)
-- **JWT** - Authentication
-- **BCrypt** - Password hashing
+- **JWT Bearer** - Token-based authentication
+- **BCrypt (PasswordHasher)** - Säker lösenordshashning
+- **MailKit** - SMTP email service
+- **ILogger** - Strukturerad logging i alla services
+- **Global Exception Handler** - Centraliserad felhantering
 
 ### Frontend (Client)
-- **Blazor Server** - Interactive web UI
-- **Bootstrap** - Responsive design
+- **Blazor Server** - Interactive server-side rendering
+- **Bootstrap 5** - Responsive design
 - **Razor Components** - Component-based architecture
+- **SignalR** - Real-time kommunikation (inbyggt i Blazor Server)
+- **ProtectedSessionStorage** - Säker state management
 
 ### Testing
 - **xUnit** - Test framework
 - **FluentAssertions** - Readable test assertions
-- **Moq** - Mocking framework
+- **Moq** - Mocking framework för unit tests
 - **InMemory Database** - Repository integration tests
+- **40 tester totalt** (38 passing, 2 under development)
 
 ## 🛠️ Setup
 
@@ -107,60 +117,147 @@ Kör med coverage:
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-**Test Coverage:** 33 tester (100% pass rate)
-- Unit Tests: 22
-- Repository Integration Tests: 11
+Kör specifika tester:
+```bash
+dotnet test --filter "FullyQualifiedName~BookingServiceTests"
+```
+
+**Test Coverage:** 40 tester (95% pass rate)
+- **Unit Tests:** 24 tester
+  - BookingServiceTests (14 tester) - inklusive helgvalidering
+  - RoomServiceTests (4 tester)
+  - AuthServiceTests (4 tester)
+  - AuthStateProviderTests (2 tester under development)
+- **Repository Integration Tests:** 11 tester
+  - BookingRepositoryIntegrationTests
+  - RoomRepositoryIntegrationTests  
+  - UserRepositoryIntegrationTests
+
+**Testade funktioner:**
+- ✅ Bokningsvalidering (tid, datum, konflikt, helger)
+- ✅ Användarautentisering och registrering
+- ✅ Repository CRUD-operationer
+- ✅ Relation-laddning från databas
+- ✅ Authorization och ägarskap
 
 ## 📁 Projektstruktur
 
 ```
 TucBookingSystem/
-├── TucBookingSystem.Api/          # Backend API
-│   ├── Controllers/                # API endpoints
-│   ├── Services/                   # Business logic
-│   ├── Repositories/               # Data access
-│   ├── Models/                     # Database entities
-│   └── Data/                       # DbContext
-├── TucBookingSystem.Client/        # Blazor frontend
-│   ├── Pages/                      # Razor pages
-│   ├── Components/                 # Reusable components
-│   ├── Services/                   # Client services
-│   └── Layout/                     # Layout components
-├── TucBookingSystem.Shared/        # Shared DTOs
-│   └── DTOs/                       # Data transfer objects
-└── TucBookingSystem.Tests/         # Test project
-    ├── Unit Tests/                 # Service tests
-    └── Integration Tests/          # Repository tests
+├── TucBookingSystem.Api/              # Backend API (.NET 10)
+│   ├── Controllers/                    # API endpoints (Auth, Bookings, Rooms)
+│   ├── Services/                       # Business logic med ILogger
+│   │   ├── AuthService.cs             # JWT token generation
+│   │   ├── BookingService.cs          # Bokningslogik + validering
+│   │   ├── RoomService.cs             # Rumshantering
+│   │   └── EmailService.cs            # SMTP email via MailKit
+│   ├── Repositories/                   # Data access layer
+│   │   ├── BookingRepository.cs       # Inklusive konflikt-check
+│   │   ├── RoomRepository.cs
+│   │   └── UserRepository.cs
+│   ├── Models/                         # Database entities
+│   │   ├── User.cs
+│   │   ├── Room.cs
+│   │   ├── Booking.cs
+│   │   └── PasswordResetToken.cs
+│   ├── Data/
+│   │   └── ApplicationDbContext.cs    # EF Core DbContext med seed data
+│   ├── Middleware/
+│   │   └── GlobalExceptionHandler.cs  # Global error handling
+│   ├── Migrations/                     # EF Core migrations
+│   └── appsettings.Development.json.template  # Template för secrets
+├── TucBookingSystem.Client/            # Blazor Server Frontend
+│   ├── Pages/                          # Razor pages (11 sidor)
+│   │   ├── Home.razor
+│   │   ├── Login.razor
+│   │   ├── Register.razor
+│   │   ├── Bookings.razor
+│   │   ├── Rooms.razor
+│   │   ├── Admin.razor
+│   │   ├── MinProfil.razor
+│   │   ├── ForgotPassword.razor
+│   │   └── ResetPassword.razor
+│   ├── Components/Shared/              # Återanvändbara komponenter
+│   │   ├── BookingForm.razor          # Visar upptagna tider
+│   │   └── BookingList.razor
+│   ├── Services/                       # Client services för API-anrop
+│   │   ├── AuthService.cs
+│   │   ├── BookingService.cs
+│   │   ├── RoomService.cs
+│   │   └── UserStateService.cs
+│   └── Layout/                         # Layout components
+│       ├── MainLayout.razor
+│       └── NavMenu.razor
+├── TucBookingSystem.Shared/            # Shared DTOs mellan API och Client
+│   └── DTOs/                           # Data transfer objects
+│       ├── BookingDto.cs
+│       ├── CreateBookingDto.cs
+│       ├── RoomDto.cs
+│       ├── UserDto.cs
+│       └── LoginRequestDto.cs
+├── TucBookingSystem.Tests/             # Test project (xUnit)
+│   ├── BookingServiceTests.cs          # 14 unit tests
+│   ├── RoomServiceTests.cs             # 4 unit tests
+│   ├── AuthServiceTests.cs             # 4 unit tests  
+│   ├── BookingRepositoryIntegrationTests.cs
+│   ├── RoomRepositoryIntegrationTests.cs
+│   └── UserRepositoryIntegrationTests.cs
+├── setup.ps1                           # Automated setup script
+├── README.md                           # Detta dokument
+└── SECRETS_SETUP.md                    # Secrets configuration guide
 ```
 
 ## 🔐 Säkerhet
 
-- JWT tokens för autentisering
-- BCrypt password hashing
-- CORS-konfiguration
-- User Secrets för känslig data
-- Role-based authorization
+- **JWT Bearer Tokens** - Token-based authentication med 24h livslängd
+- **BCrypt Password Hashing** - Använder ASP.NET Identity PasswordHasher
+- **Role-based Authorization** - Admin och User roller
+- **CORS-konfiguration** - Endast tillåtna origins
+- **User Secrets** - Känslig data aldrig i Git
+- **Global Exception Handler** - Centraliserad felhantering utan att läcka känslig information
+- **.gitignore** - Databaser och secrets-filer exkluderas
+- **Email Validation** - Unique email constraint i databas
 
 ## 📚 API Endpoints
 
-### Authentication
+### 🔓 Public Endpoints (ingen auth krävs)
+
+#### Authentication
 - `POST /api/auth/register` - Registrera ny användare
-- `POST /api/auth/login` - Logga in
-- `POST /api/auth/request-password-reset` - Begär lösenordsåterställning
-- `POST /api/auth/reset-password` - Återställ lösenord
+- `POST /api/auth/login` - Logga in och få JWT token
+- `POST /api/auth/forgot-password` - Begär lösenordsåterställning
+- `POST /api/auth/reset-password-api` - Återställ lösenord med token
 
-### Bookings (Kräver auth)
-- `GET /api/bookings` - Hämta alla bokningar
-- `GET /api/bookings/{id}` - Hämta specifik bokning
-- `GET /api/bookings/user/{userId}` - Hämta användares bokningar
-- `POST /api/bookings` - Skapa ny bokning
-- `DELETE /api/bookings/{id}` - Radera bokning
-
-### Rooms
-- `GET /api/rooms` - Hämta alla rum
+#### Rooms
+- `GET /api/rooms` - Hämta alla aktiva rum
 - `GET /api/rooms/{id}` - Hämta specifikt rum
-- `POST /api/rooms` - Skapa nytt rum (Admin)
-- `DELETE /api/rooms/{id}` - Radera rum (Admin)
+
+#### Bookings (delvis public)
+- `GET /api/bookings/room/{roomId}/date/{date}` - Se upptagna tider för ett rum (ingen auth krävs)
+
+### 🔒 Protected Endpoints (kräver JWT Bearer token)
+
+#### Bookings
+- `GET /api/bookings/my` - Hämta mina bokningar
+- `POST /api/bookings` - Skapa ny bokning
+  - Validerar: tid (08:00-20:00), datum (ej förflutet), helger (blockeras), konflikter
+- `DELETE /api/bookings/{id}` - Ta bort egen bokning
+
+#### Admin Endpoints (kräver Admin-roll)
+- `GET /api/bookings` - Hämta alla bokningar
+- `POST /api/rooms` - Skapa nytt rum
+- `DELETE /api/rooms/{id}` - Ta bort rum
+
+### 📖 Swagger UI
+
+Testa API:et interaktivt via Swagger:
+
+1. Starta API-projektet: `dotnet run --project TucBookingSystem.Api`
+2. Öppna: `https://localhost:7002/swagger`
+3. För autentiserade endpoints:
+   - Logga in via `/api/auth/login` och kopiera JWT token
+   - Klicka "Authorize" och skriv: `Bearer {din-token}`
+   - Nu kan du testa alla skyddade endpoints!
 
 ## 🤝 Bidra
 
@@ -184,5 +281,6 @@ För frågor eller problem, öppna ett issue på GitHub.
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-19
+**Version:** 2.0.0  
+**Last Updated:** 2026-03-23
+
