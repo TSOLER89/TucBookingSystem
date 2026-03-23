@@ -42,6 +42,18 @@ public class RoomsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdRoom.Id }, createdRoom);
     }
 
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<RoomDto>> Update(int id, UpdateRoomDto dto)
+    {
+        var updated = await _roomService.UpdateAsync(id, dto);
+
+        if (updated is null)
+            return NotFound();
+
+        return Ok(updated);
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)

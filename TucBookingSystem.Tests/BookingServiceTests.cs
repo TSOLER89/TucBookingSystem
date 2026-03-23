@@ -271,4 +271,91 @@ public class BookingServiceTests
         result.Should().HaveCount(1);
         result[0].Id.Should().Be(1);
     }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldFail_WhenBookingNotFound()
+    {
+        _bookingRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Booking?)null);
+
+        var dto = new UpdateBookingDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.UpdateAsync(999, 1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Bokningen finns inte.");
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldFail_WhenUserDoesNotOwnBooking()
+    {
+        _bookingRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Booking { Id = 1, UserId = 2, RoomId = 1 });
+
+        var dto = new UpdateBookingDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(11, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.UpdateAsync(1, userId: 1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Du får bara ändra dina egna bokningar.");
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldFail_WhenStartTimeIsAfterEndTime()
+    {
+        _bookingRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Booking { Id = 1, UserId = 1, RoomId = 1 });
+
+        var dto = new UpdateBookingDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(12, 0),
+            EndTime = new TimeOnly(10, 0),
+            Purpose = "Test"
+        };
+
+        var result = await _service.UpdateAsync(1, 1, dto);
+
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("Starttid måste vara före sluttid.");
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldSucceed_WithValidData()
+    {
+        var existingBooking = new Booking { Id = 1, UserId = 1, RoomId = 1, Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)), StartTime = new TimeOnly(10, 0), EndTime = new TimeOnly(11, 0), Purpose = "Old" };
+        var updatedBooking = new Booking { Id = 1, UserId = 1, RoomId = 1, Room = new Room { Name = "Room A" }, Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)), StartTime = new TimeOnly(13, 0), EndTime = new TimeOnly(14, 0), Purpose = "Updated" };
+
+        _bookingRepo.Setup(r => r.GetByIdAsync(1))
+                    .ReturnsAsync(existingBooking);
+        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>()))
+                    .ReturnsAsync(false);
+        _bookingRepo.Setup(r => r.UpdateAsync(1, It.IsAny<Booking>())).ReturnsAsync(true);
+        _bookingRepo.SetupSequence(r => r.GetByIdAsync(1))
+                    .ReturnsAsync(existingBooking)
+                    .ReturnsAsync(updatedBooking);
+
+        var dto = new UpdateBookingDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = new TimeOnly(13, 0),
+            EndTime = new TimeOnly(14, 0),
+            Purpose = "Updated"
+        };
+
+        var result = await _service.UpdateAsync(1, 1, dto);
+
+        result.Success.Should().BeTrue();
+        result.Booking.Should().NotBeNull();
+        result.Booking!.Purpose.Should().Be("Updated");
+    }
 }
