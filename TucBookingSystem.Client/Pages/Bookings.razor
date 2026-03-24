@@ -11,12 +11,43 @@
 
 <div class="booking-page">
     <h3 class="booking-title">Bokningar</h3>
+
     <div class="booking-card mt-4">
         <h4 class="booking-subtitle">Mina bokningar</h4>
 
         <BookingList Bookings="@bookings"
                      OnEditBooking="@HandleEditBooking"
                      OnDeleteBooking="@HandleDeleteBooking" />
+
+        @if (editingBookingId.HasValue)
+        {
+            <div class="mt-4">
+                <h4 class="booking-subtitle">Ändra bokning</h4>
+
+                @if (!string.IsNullOrWhiteSpace(successMessage))
+                {
+                    <div class="alert alert-success">@successMessage</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="alert alert-danger">@errorMessage</div>
+                }
+
+                <BookingForm BookingModel="@editBooking"
+                             Rooms="@rooms"
+                             StartTimeText="@editStartTimeText"
+                             EndTimeText="@editEndTimeText"
+                             StartTimeTextChanged="@HandleEditStartTimeChanged"
+                             EndTimeTextChanged="@HandleEditEndTimeChanged"
+                             SubmitButtonText="Spara ändringar"
+                             OnSubmitBooking="@HandleUpdateBooking" />
+
+                <button type="button" class="btn btn-secondary mt-2" @onclick="CancelEditBooking">
+                    Avbryt
+                </button>
+            </div>
+        }
     </div>
 
     @if (isLoading)
@@ -30,14 +61,17 @@
         <div class="booking-card">
             <h4 class="booking-subtitle">Skapa ny bokning</h4>
 
-            @if (!string.IsNullOrWhiteSpace(successMessage))
+            @if (!editingBookingId.HasValue)
             {
-                <div class="alert alert-success">@successMessage</div>
-            }
+                @if (!string.IsNullOrWhiteSpace(successMessage))
+                {
+                    <div class="alert alert-success">@successMessage</div>
+                }
 
-            @if (!string.IsNullOrWhiteSpace(errorMessage))
-            {
-                <div class="alert alert-danger">@errorMessage</div>
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="alert alert-danger">@errorMessage</div>
+                }
             }
 
             <BookingForm BookingModel="@newBooking"
@@ -49,27 +83,6 @@
                          SubmitButtonText="Skapa bokning"
                          OnSubmitBooking="@HandleCreateBooking" />
         </div>
-
-        @if (editingBookingId.HasValue)
-        {
-            <div class="booking-card">
-                <h4 class="booking-subtitle">Ändra bokning</h4>
-
-                <BookingForm BookingModel="@editBooking"
-                             Rooms="@rooms"
-                             StartTimeText="@editStartTimeText"
-                             EndTimeText="@editEndTimeText"
-                             StartTimeTextChanged="@HandleEditStartTimeChanged"
-                             EndTimeTextChanged="@HandleEditEndTimeChanged"
-                             SubmitButtonText="Spara ändringar"
-                             IsRoomSelectionDisabled="true"
-                             OnSubmitBooking="@HandleUpdateBooking" />
-
-                <button class="btn btn-outline-secondary mt-3" @onclick="CancelEditBooking">
-                    Avbryt ändring
-                </button>
-            </div>
-        }
     }
 </div>
 
