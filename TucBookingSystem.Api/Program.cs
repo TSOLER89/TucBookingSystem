@@ -1,62 +1,66 @@
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using TucBookingSystem.Api.Data;
+using TucBookingSystem.Api.Middleware;
+using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
 using TucBookingSystem.Api.Services;
-using TucBookingSystem.Api.Middleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey!))
-        };
+ .AddJwtBearer(options =>
+ {
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuer = true,
+         ValidateAudience = true,
+         ValidateLifetime = true,
+         ValidateIssuerSigningKey = true,
+         ValidIssuer = builder.Configuration["Jwt:Issuer"],
+         ValidAudience = builder.Configuration["Jwt:Audience"],
+         IssuerSigningKey = new SymmetricSecurityKey(
+     Encoding.UTF8.GetBytes(jwtKey!))
+     };
 
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var authHeader = context.Request.Headers["Authorization"].ToString();
-                Console.WriteLine("Authorization header: " + authHeader);
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine("JWT Authentication failed: " + context.Exception.Message);
-                return Task.CompletedTask;
-            },
-            OnTokenValidated = context =>
-            {
-                Console.WriteLine("JWT Token validated successfully.");
-                return Task.CompletedTask;
-            },
-            OnChallenge = context =>
-            {
-                Console.WriteLine("JWT Challenge error: " + context.Error);
-                Console.WriteLine("JWT Challenge description: " + context.ErrorDescription);
-                return Task.CompletedTask;
-            }
-        };
-    });
+     options.Events = new JwtBearerEvents
+     {
+         OnMessageReceived = context =>
+         {
+             var authHeader = context.Request.Headers["Authorization"].ToString();
+             Console.WriteLine("Authorization header: " + authHeader);
+             return Task.CompletedTask;
+         },
+         OnAuthenticationFailed = context =>
+         {
+             Console.WriteLine("JWT Authentication failed: " + context.Exception.Message);
+             return Task.CompletedTask;
+         },
+         OnTokenValidated = context =>
+         {
+             Console.WriteLine("JWT Token validated successfully.");
+             return Task.CompletedTask;
+         },
+         OnChallenge = context =>
+         {
+             Console.WriteLine("JWT Challenge error: " + context.Error);
+             Console.WriteLine("JWT Challenge description: " + context.ErrorDescription);
+             return Task.CompletedTask;
+         }
+     };
+ });
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -68,20 +72,22 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Skriv: Bearer {token}"
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            Array.Empty<string>()
-        }
-    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+ {
+ new OpenApiSecurityScheme {
+ Reference = new OpenApiReference {
+ Type = ReferenceType.SecurityScheme,
+ Id = "Bearer"
+ }
+ },
+ Array.Empty<string>()
+ }
+ });
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+ options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
@@ -96,13 +102,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazor", policy =>
     {
-        policy.WithOrigins("http://localhost:5045",
-             "http://localhost:5045",
-                "https://localhost:7116",
-                "http://localhost:5000",
-                "https://localhost:5001")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+        "http://localhost:5045",
+        "https://localhost:7116",
+        "http://localhost:5000",
+        "https://localhost:5001")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
@@ -114,29 +120,37 @@ using (var scope = app.Services.CreateScope())
 
     dbContext.Database.EnsureCreated();
 
-    var adminUser = await dbContext.Users.FirstOrDefaultAsync(user => user.Email == "admin@admin.se");
+    var adminEmail = builder.Configuration["AdminSeed:Email"];
+    var adminPassword = builder.Configuration["AdminSeed:Password"];
 
-    if (adminUser is null)
+    if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword))
     {
-        dbContext.Users.Add(new TucBookingSystem.Api.Models.User
+        var adminUser = await dbContext.Users.FirstOrDefaultAsync(user => user.Email == adminEmail);
+        var hasher = new PasswordHasher<User>();
+
+        if (adminUser is null)
         {
-            FullName = "Admin",
-            Email = "admin@admin.se",
-            PasswordHash = "admin",
-            Role = "Admin"
-        });
-    }
-    else
-    {
-        adminUser.FullName = "Admin";
-        adminUser.PasswordHash = "admin";
-        adminUser.Role = "Admin";
-    }
+            adminUser = new User
+            {
+                FullName = "Admin",
+                Email = adminEmail,
+                Role = "Admin"
+            };
 
-    await dbContext.SaveChangesAsync();
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
+            dbContext.Users.Add(adminUser);
+        }
+        else
+        {
+            adminUser.FullName = "Admin";
+            adminUser.Role = "Admin";
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
 }
 
-// Global Exception Handler
 app.UseMiddleware<GlobalExceptionHandler>();
 
 if (app.Environment.IsDevelopment())
@@ -152,6 +166,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-// Make Program class accessible to integration tests
-public partial class Program { }
