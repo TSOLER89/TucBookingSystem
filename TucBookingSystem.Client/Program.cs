@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Endpoints;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using Microsoft.AspNetCore.Routing;
 using TucBookingSystem.Client.Components;
 using TucBookingSystem.Client.Services;
 
@@ -58,43 +56,6 @@ public partial class Program
 
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
-
-        var endpointSource = app.Services.GetRequiredService<EndpointDataSource>();
-
-        var duplicates = endpointSource.Endpoints
-            .OfType<RouteEndpoint>()
-            .Where(e => e.RoutePattern.RawText == "/reset-password")
-            .ToList();
-
-        Console.WriteLine("=== RESET PASSWORD ENDPOINTS ===");
-        foreach (var ep in duplicates)
-        {
-            Console.WriteLine($"Route: {ep.RoutePattern.RawText}");
-            Console.WriteLine($"DisplayName: {ep.DisplayName}");
-            Console.WriteLine("-----");
-        }
-
-        app.MapGet("/debug/routes", (EndpointDataSource endpointSource) =>
-        {
-            var routes = endpointSource.Endpoints
-                .OfType<RouteEndpoint>()
-                .Where(e => e.RoutePattern.RawText == "/reset-password")
-                .Select(e =>
-                {
-                    var componentMetadata = e.Metadata.OfType<ComponentTypeMetadata>().FirstOrDefault();
-
-                    return new
-                    {
-                        Route = e.RoutePattern.RawText,
-                        e.DisplayName,
-                        ComponentType = componentMetadata?.Type.FullName,
-                        Assembly = componentMetadata?.Type.Assembly.FullName
-                    };
-                })
-                .ToList();
-
-            return Results.Json(routes);
-        });
 
         app.Run();
     }

@@ -123,8 +123,6 @@ public class BookingRepositoryIntegrationTests : IDisposable
         result.Should().OnlyContain(b => b.UserId == user1.Id);
     }
 
-    // GetByRoomIdAsync method doesn't exist in repository, removing test
-
     [Fact]
     public async Task CreateAsync_ShouldAddBooking()
     {
@@ -156,8 +154,6 @@ public class BookingRepositoryIntegrationTests : IDisposable
         var savedBooking = await _context.Bookings.FindAsync(result.Id);
         savedBooking.Should().NotBeNull();
     }
-
-    // UpdateAsync method doesn't exist in repository, removing test
 
     [Fact]
     public async Task DeleteAsync_ShouldRemoveBooking()
@@ -261,6 +257,39 @@ public class BookingRepositoryIntegrationTests : IDisposable
         );
 
         // Assert
+        hasConflict.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HasConflictAsync_ShouldIgnoreExcludedBooking()
+    {
+        var room = new Room { Name = "Room", Location = "Loc", Capacity = 10 };
+        var user = new User { FullName = "User", Email = "user@test.com", PasswordHash = "hash" };
+
+        _context.Rooms.Add(room);
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        var existingBooking = new Booking
+        {
+            RoomId = room.Id,
+            UserId = user.Id,
+            Date = DateOnly.FromDateTime(DateTime.Today),
+            StartTime = new TimeOnly(10, 0),
+            EndTime = new TimeOnly(12, 0),
+            Purpose = "Existing"
+        };
+
+        _context.Bookings.Add(existingBooking);
+        await _context.SaveChangesAsync();
+
+        var hasConflict = await _repository.HasConflictAsync(
+            room.Id,
+            existingBooking.Date,
+            existingBooking.StartTime,
+            existingBooking.EndTime,
+            existingBooking.Id);
+
         hasConflict.Should().BeFalse();
     }
 

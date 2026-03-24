@@ -1,7 +1,7 @@
-﻿@page "/bookings"
-@using TucBookingSystem.Shared.DTOs
-@using TucBookingSystem.Client.Components.Shared
+@page "/bookings"
 @using Microsoft.AspNetCore.Components
+@using TucBookingSystem.Client.Components.Shared
+@using TucBookingSystem.Shared.DTOs
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
 @inject NavigationManager NavigationManager
@@ -15,6 +15,7 @@
         <h4 class="booking-subtitle">Mina bokningar</h4>
 
         <BookingList Bookings="@bookings"
+                     OnEditBooking="@HandleEditBooking"
                      OnDeleteBooking="@HandleDeleteBooking" />
     </div>
 
@@ -45,15 +46,37 @@
                          EndTimeText="@endTimeText"
                          StartTimeTextChanged="@HandleStartTimeChanged"
                          EndTimeTextChanged="@HandleEndTimeChanged"
+                         SubmitButtonText="Skapa bokning"
                          OnSubmitBooking="@HandleCreateBooking" />
         </div>
-       
+
+        @if (editingBookingId.HasValue)
+        {
+            <div class="booking-card">
+                <h4 class="booking-subtitle">Ändra bokning</h4>
+
+                <BookingForm BookingModel="@editBooking"
+                             Rooms="@rooms"
+                             StartTimeText="@editStartTimeText"
+                             EndTimeText="@editEndTimeText"
+                             StartTimeTextChanged="@HandleEditStartTimeChanged"
+                             EndTimeTextChanged="@HandleEditEndTimeChanged"
+                             SubmitButtonText="Spara ändringar"
+                             IsRoomSelectionDisabled="true"
+                             OnSubmitBooking="@HandleUpdateBooking" />
+
+                <button class="btn btn-outline-secondary mt-3" @onclick="CancelEditBooking">
+                    Avbryt ändring
+                </button>
+            </div>
+        }
     }
 </div>
 
 @code {
     private List<RoomDto> rooms = new();
     private List<BookingDto> bookings = new();
+
     [SupplyParameterFromQuery]
     public int? RoomId { get; set; }
 
@@ -62,12 +85,19 @@
         Date = DateOnly.FromDateTime(DateTime.Today)
     };
 
+    private CreateBookingDto editBooking = new()
+    {
+        Date = DateOnly.FromDateTime(DateTime.Today)
+    };
+
     private bool isLoading = true;
+    private int? editingBookingId;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
-
     private string startTimeText = "08:00";
     private string endTimeText = "09:00";
+    private string editStartTimeText = "08:00";
+    private string editEndTimeText = "09:00";
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,6 +149,18 @@
         return Task.CompletedTask;
     }
 
+    private Task HandleEditStartTimeChanged(string value)
+    {
+        editStartTimeText = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleEditEndTimeChanged(string value)
+    {
+        editEndTimeText = value;
+        return Task.CompletedTask;
+    }
+
     private async Task HandleCreateBooking()
     {
         errorMessage = string.Empty;
@@ -166,6 +208,87 @@
         bookings = await BookingService.GetMyBookingsAsync();
     }
 
+    private Task HandleEditBooking(int bookingId)
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+        if (booking is null)
+        {
+            errorMessage = "Kunde inte hitta bokningen som ska ändras.";
+            return Task.CompletedTask;
+        }
+
+        editingBookingId = bookingId;
+        editBooking = new CreateBookingDto
+        {
+            RoomId = booking.RoomId,
+            Date = booking.Date,
+            StartTime = booking.StartTime,
+            EndTime = booking.EndTime,
+            Purpose = booking.Purpose
+        };
+        editStartTimeText = booking.StartTime.ToString("HH:mm");
+        editEndTimeText = booking.EndTime.ToString("HH:mm");
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleUpdateBooking()
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        if (!editingBookingId.HasValue)
+        {
+            errorMessage = "Ingen bokning är vald för ändring.";
+            return;
+        }
+
+        if (!TimeOnly.TryParse(editStartTimeText, out var startTime))
+        {
+            errorMessage = "Starttid är inte korrekt. Exempel: 08:00";
+            return;
+        }
+
+        if (!TimeOnly.TryParse(editEndTimeText, out var endTime))
+        {
+            errorMessage = "Sluttid är inte korrekt. Exempel: 09:00";
+            return;
+        }
+
+        var result = await BookingService.UpdateBookingAsync(editingBookingId.Value, new UpdateBookingDto
+        {
+            Date = editBooking.Date,
+            StartTime = startTime,
+            EndTime = endTime,
+            Purpose = editBooking.Purpose
+        });
+
+        if (!result.Success)
+        {
+            errorMessage = result.Message;
+            return;
+        }
+
+        successMessage = "Bokningen uppdaterades.";
+        await CancelEditBooking();
+        bookings = await BookingService.GetMyBookingsAsync();
+    }
+
+    private Task CancelEditBooking()
+    {
+        editingBookingId = null;
+        editBooking = new CreateBookingDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today)
+        };
+        editStartTimeText = "08:00";
+        editEndTimeText = "09:00";
+        return Task.CompletedTask;
+    }
+
     private async Task HandleDeleteBooking(int bookingId)
     {
         errorMessage = string.Empty;
@@ -191,6 +314,11 @@
         successMessage = wasPassed
             ? "Bokningen raderades."
             : "Bokningen avbokades.";
+
+        if (editingBookingId == bookingId)
+        {
+            await CancelEditBooking();
+        }
 
         bookings = await BookingService.GetMyBookingsAsync();
     }

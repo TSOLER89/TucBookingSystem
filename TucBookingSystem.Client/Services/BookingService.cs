@@ -28,6 +28,11 @@ public class BookingService : IBookingService
         return CreateAsync(0, dto);
     }
 
+    public Task<(bool Success, string Message, BookingDto? Booking)> UpdateBookingAsync(int bookingId, UpdateBookingDto dto)
+    {
+        return UpdateAsync(bookingId, 0, dto);
+    }
+
     public async Task<(bool Success, string Message, BookingDto? Booking)> CreateAsync(int userId, CreateBookingDto dto)
     {
         var response = await _httpClient.PostAsJsonAsync("api/bookings", dto);
@@ -54,6 +59,20 @@ public class BookingService : IBookingService
 
         var booking = await response.Content.ReadFromJsonAsync<BookingDto>();
         return (true, "Bokning skapad.", booking);
+    }
+
+    public async Task<(bool Success, string Message, BookingDto? Booking)> UpdateAsync(int bookingId, int userId, UpdateBookingDto dto)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"api/bookings/{bookingId}", dto);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            return (false, error, null);
+        }
+
+        var booking = await response.Content.ReadFromJsonAsync<BookingDto>();
+        return (true, "Bokningen uppdaterades.", booking);
     }
 
     public Task<(bool Success, string Message)> DeleteBookingAsync(int bookingId)

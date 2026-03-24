@@ -167,7 +167,7 @@ public class BookingServiceTests
     public async Task CreateAsync_ShouldFail_WhenTimeConflictExists()
     {
         _roomRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Room { Id = 1, Name = "Room A" });
-        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>()))
+        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int?>()))
                     .ReturnsAsync(true);
 
         var dto = new CreateBookingDto
@@ -189,7 +189,7 @@ public class BookingServiceTests
     public async Task CreateAsync_ShouldSucceed_WithValidData()
     {
         _roomRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Room { Id = 1, Name = "Room A" });
-        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>()))
+        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int?>()))
                     .ReturnsAsync(false);
         _bookingRepo.Setup(r => r.CreateAsync(It.IsAny<Booking>()))
                     .ReturnsAsync((Booking b) => { b.Id = 1; return b; });
@@ -337,7 +337,7 @@ public class BookingServiceTests
 
         _bookingRepo.Setup(r => r.GetByIdAsync(1))
                     .ReturnsAsync(existingBooking);
-        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>()))
+        _bookingRepo.Setup(r => r.HasConflictAsync(It.IsAny<int>(), It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int?>()))
                     .ReturnsAsync(false);
         _bookingRepo.Setup(r => r.UpdateAsync(1, It.IsAny<Booking>())).ReturnsAsync(true);
         _bookingRepo.SetupSequence(r => r.GetByIdAsync(1))
@@ -357,5 +357,6 @@ public class BookingServiceTests
         result.Success.Should().BeTrue();
         result.Booking.Should().NotBeNull();
         result.Booking!.Purpose.Should().Be("Updated");
+        _bookingRepo.Verify(r => r.HasConflictAsync(1, dto.Date, dto.StartTime, dto.EndTime, 1), Times.Once);
     }
 }
