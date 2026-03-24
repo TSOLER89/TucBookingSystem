@@ -1,0 +1,51 @@
+﻿.booking-list-desktop {
+    display: block;
+}
+
+.booking-list-mobile {
+    display: none;
+}
+
+.booking-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.booking-mobile-card {
+    background: #fafafa;
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.booking-mobile-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 0.75rem;
+}
+
+.booking-mobile-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #555;
+}
+
+.booking-mobile-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .booking-list-desktop {
+        display: none;
+    }
+
+    .booking-list-mobile {
+        display: block;
+    }
+}

@@ -1,0 +1,62 @@
+﻿.booking-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.booking-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.booking-title,
+.booking-subtitle {
+    word-break: break-word;
+}
+
+.booking-card .alert {
+    word-break: break-word;
+}
+
+.booking-card .btn {
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .booking-page {
+        padding: 0.75rem;
+    }
+
+    .booking-title {
+        font-size: 1.6rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .booking-subtitle {
+        font-size: 1.15rem;
+    }
+
+    .booking-card {
+        padding: 1rem;
+        border-radius: 14px;
+    }
+
+        .booking-card .btn {
+            width: 100%;
+        }
+}
+
+@media (max-width: 576px) {
+    .booking-page {
+        padding: 0.5rem;
+    }
+
+    .booking-title {
+        font-size: 1.35rem;
+    }
+
+    .booking-subtitle {
+        font-size: 1rem;
+    }
+}
