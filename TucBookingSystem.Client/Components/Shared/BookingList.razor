@@ -1,4 +1,4 @@
-﻿@using TucBookingSystem.Shared.DTOs
+@using TucBookingSystem.Shared.DTOs
 
 @if (Bookings == null || Bookings.Count == 0)
 {
@@ -36,6 +36,11 @@ else
                         <td>@booking.EndTime.ToString("HH:mm")</td>
                         <td>@booking.Purpose</td>
                         <td>
+                            <button class="btn btn-secondary btn-sm me-2"
+                                    disabled="@IsBookingPassed(booking)"
+                                    @onclick="() => EditClicked(booking.Id)">
+                                Ändra
+                            </button>
                             <button class="btn btn-danger btn-sm"
                                     @onclick="() => DeleteClicked(booking.Id)">
                                 @(IsBookingPassed(booking) ? "Radera" : "Avboka")
@@ -53,7 +58,15 @@ else
     public List<BookingDto> Bookings { get; set; } = new();
 
     [Parameter]
+    public EventCallback<int> OnEditBooking { get; set; }
+
+    [Parameter]
     public EventCallback<int> OnDeleteBooking { get; set; }
+
+    private async Task EditClicked(int bookingId)
+    {
+        await OnEditBooking.InvokeAsync(bookingId);
+    }
 
     private async Task DeleteClicked(int bookingId)
     {

@@ -5,7 +5,7 @@ namespace TucBookingSystem.Api.Repositories;
 public interface IBookingRepository
 {
     Task<List<Booking>> GetUserBookingsAsync(int userId);
-    Task<bool> HasConflictAsync(int roomId, DateOnly date, TimeOnly startTime, TimeOnly endTime);
+    Task<bool> HasConflictAsync(int roomId, DateOnly date, TimeOnly startTime, TimeOnly endTime, int? excludeBookingId = null);
     Task<Booking> CreateAsync(Booking booking);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<Booking>> GetAllAsync();

@@ -1,12 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using TucBookingSystem.Api.Data;
+using TucBookingSystem.Api.Middleware;
+using TucBookingSystem.Api.Models;
 using TucBookingSystem.Api.Repositories;
 using TucBookingSystem.Api.Services;
-using TucBookingSystem.Api.Middleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,32 +27,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey!))
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var authHeader = context.Request.Headers["Authorization"].ToString();
-                Console.WriteLine("Authorization header: " + authHeader);
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine("JWT Authentication failed: " + context.Exception.Message);
-                return Task.CompletedTask;
-            },
-            OnTokenValidated = context =>
-            {
-                Console.WriteLine("JWT Token validated successfully.");
-                return Task.CompletedTask;
-            },
-            OnChallenge = context =>
-            {
-                Console.WriteLine("JWT Challenge error: " + context.Error);
-                Console.WriteLine("JWT Challenge description: " + context.ErrorDescription);
-                return Task.CompletedTask;
-            }
         };
     });
 
@@ -96,6 +72,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazor", policy =>
     {
+        policy.WithOrigins("http://localhost:5045",
         policy.WithOrigins(
                 "https://localhost:5045",
                 "https://localhost:7116",
@@ -108,36 +85,81 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+bool IsIdentityPasswordHash(string passwordHash) =>
+    passwordHash.StartsWith("AQAAAA", StringComparison.Ordinal);
 
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var passwordHasher = new PasswordHasher<User>();
+    var adminEmail = builder.Configuration["Admin:Email"] ?? "admin@admin.se";
+    var adminFullName = builder.Configuration["Admin:FullName"] ?? "Admin";
+    var adminPassword = builder.Configuration["Admin:Password"];
 
     dbContext.Database.EnsureCreated();
 
-    var adminUser = await dbContext.Users.FirstOrDefaultAsync(user => user.Email == "admin@admin.se");
+    var adminUser = await dbContext.Users.FirstOrDefaultAsync(user => user.Email == adminEmail);
 
     if (adminUser is null)
     {
-        dbContext.Users.Add(new TucBookingSystem.Api.Models.User
+        if (string.IsNullOrWhiteSpace(adminPassword))
         {
-            FullName = "Admin",
-            Email = "admin@admin.se",
-            PasswordHash = "admin",
-            Role = "Admin"
-        });
+            logger.LogWarning("Skipping admin seed because Admin:Password is not configured.");
+        }
+        else
+        {
+            var newAdmin = new User
+            {
+                FullName = adminFullName,
+                Email = adminEmail,
+                Role = "Admin"
+            };
+
+            newAdmin.PasswordHash = passwordHasher.HashPassword(newAdmin, adminPassword);
+            dbContext.Users.Add(newAdmin);
+            logger.LogInformation("Seeded admin user {Email}.", adminEmail);
+        }
     }
     else
     {
-        adminUser.FullName = "Admin";
-        adminUser.PasswordHash = "admin";
-        adminUser.Role = "Admin";
+        var hasChanges = false;
+
+        if (!string.Equals(adminUser.FullName, adminFullName, StringComparison.Ordinal))
+        {
+            adminUser.FullName = adminFullName;
+            hasChanges = true;
+        }
+
+        if (!string.Equals(adminUser.Role, "Admin", StringComparison.Ordinal))
+        {
+            adminUser.Role = "Admin";
+            hasChanges = true;
+        }
+
+        if (!IsIdentityPasswordHash(adminUser.PasswordHash))
+        {
+            var passwordToHash = string.IsNullOrWhiteSpace(adminPassword)
+                ? adminUser.PasswordHash
+                : adminPassword;
+
+            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, passwordToHash);
+            hasChanges = true;
+            logger.LogInformation("Migrated admin password for {Email} to hashed storage.", adminEmail);
+        }
+
+        if (hasChanges)
+        {
+            await dbContext.SaveChangesAsync();
+        }
     }
 
-    await dbContext.SaveChangesAsync();
+    if (adminUser is null && !string.IsNullOrWhiteSpace(adminPassword))
+    {
+        await dbContext.SaveChangesAsync();
+    }
 }
 
-// Global Exception Handler
 app.UseMiddleware<GlobalExceptionHandler>();
 
 if (app.Environment.IsDevelopment())

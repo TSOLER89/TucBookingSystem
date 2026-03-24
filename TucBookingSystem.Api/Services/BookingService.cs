@@ -121,7 +121,12 @@ public class BookingService : IBookingService
         if (dto.StartTime < new TimeOnly(8, 0) || dto.EndTime > new TimeOnly(20, 0))
             return (false, "Bokningar måste vara mellan 08:00 och 20:00.", null);
 
-        var hasConflict = await _bookingRepository.HasConflictAsync(existing.RoomId, dto.Date, dto.StartTime, dto.EndTime);
+        var hasConflict = await _bookingRepository.HasConflictAsync(
+            existing.RoomId,
+            dto.Date,
+            dto.StartTime,
+            dto.EndTime,
+            bookingId);
         if (hasConflict)
             return (false, "Rummet är redan bokat den tiden.", null);
 

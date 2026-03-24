@@ -65,8 +65,6 @@ public class AuthService : IAuthService
 
         var user = await _userRepository.GetByEmailAsync(dto.Email);
 
-        _logger.LogInformation("Stored password hash: {Hash}", user?.PasswordHash);
-
         if (user is null)
         {
             _logger.LogWarning("Login failed: User with email {Email} not found", dto.Email);
@@ -75,7 +73,6 @@ public class AuthService : IAuthService
 
         var hasher = new PasswordHasher<User>();
         var result = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-        _logger.LogInformation("Password verification result: {Result}", result);
 
         if (result == PasswordVerificationResult.Failed)
         {

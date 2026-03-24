@@ -21,11 +21,12 @@ public class BookingRepository : IBookingRepository
             .ToListAsync();
     }
 
-    public async Task<bool> HasConflictAsync(int roomId, DateOnly date, TimeOnly startTime, TimeOnly endTime)
+    public async Task<bool> HasConflictAsync(int roomId, DateOnly date, TimeOnly startTime, TimeOnly endTime, int? excludeBookingId = null)
     {
         return await _context.Bookings.AnyAsync(b =>
             b.RoomId == roomId &&
             b.Date == date &&
+            (!excludeBookingId.HasValue || b.Id != excludeBookingId.Value) &&
             startTime < b.EndTime &&
             endTime > b.StartTime);
     }

@@ -22,7 +22,10 @@
 
     <div class="mb-3">
         <label class="form-label">Rum</label>
-        <select class="form-control" value="@BookingModel.RoomId" @onchange="HandleRoomChanged">
+        <select class="form-control"
+                value="@BookingModel.RoomId"
+                @onchange="HandleRoomChanged"
+                disabled="@IsRoomSelectionDisabled">
             <option value="0">Välj rum</option>
             @foreach (var room in Rooms)
             {
@@ -84,7 +87,7 @@
     </div>
 
     <button class="btn btn-primary" type="submit">
-        Skapa bokning
+        @SubmitButtonText
     </button>
 </EditForm>
 
@@ -109,6 +112,12 @@
 
     [Parameter]
     public EventCallback<string> EndTimeTextChanged { get; set; }
+
+    [Parameter]
+    public string SubmitButtonText { get; set; } = "Skapa bokning";
+
+    [Parameter]
+    public bool IsRoomSelectionDisabled { get; set; }
 
     [Parameter]
     public bool ShowUserSelector { get; set; }
