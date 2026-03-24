@@ -6,50 +6,101 @@
 }
 else
 {
-    <div class="booking-table-wrapper">
-        <table class="booking-table">
-            <thead>
-                <tr>
-                    <th>Rum</th>
-                    @if (ShowUserColumn)
-                    {
-                        <th>Användare</th>
-                    }
-                    <th>Datum</th>
-                    <th>Start</th>
-                    <th>Slut</th>
-                    <th>Syfte</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var booking in Bookings)
-                {
+    <div class="booking-list-desktop">
+        <div class="booking-table-wrapper">
+            <table class="booking-table">
+                <thead>
                     <tr>
-                        <td>@booking.RoomName</td>
+                        <th>Rum</th>
                         @if (ShowUserColumn)
                         {
-                            <td>@booking.UserName</td>
+                            <th>Användare</th>
                         }
-                        <td>@booking.Date.ToString("yyyy-MM-dd")</td>
-                        <td>@booking.StartTime.ToString("HH:mm")</td>
-                        <td>@booking.EndTime.ToString("HH:mm")</td>
-                        <td>@booking.Purpose</td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm me-2"
-                                    disabled="@IsBookingPassed(booking)"
-                                    @onclick="() => EditClicked(booking.Id)">
-                                Ändra
-                            </button>
-                            <button class="btn btn-danger btn-sm"
-                                    @onclick="() => DeleteClicked(booking.Id)">
-                                @(IsBookingPassed(booking) ? "Radera" : "Avboka")
-                            </button>
-                        </td>
+                        <th>Datum</th>
+                        <th>Tid</th>
+                        <th>Syfte</th>
+                        <th>Åtgärder</th>
                     </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Bookings)
+                    {
+                        <tr>
+                            <td>@booking.RoomName</td>
+                            @if (ShowUserColumn)
+                            {
+                                <td>@booking.UserName</td>
+                            }
+                            <td>@booking.Date.ToString("yyyy-MM-dd")</td>
+                            <td>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
+                            <td>@booking.Purpose</td>
+                            <td>
+                                <div class="booking-action-buttons">
+                                    <button class="btn btn-secondary btn-sm"
+                                            disabled="@IsBookingPassed(booking)"
+                                            @onclick="() => EditClicked(booking.Id)">
+                                        Ändra
+                                    </button>
+
+                                    <button class="btn btn-danger btn-sm"
+                                            @onclick="() => DeleteClicked(booking.Id)">
+                                        @(IsBookingPassed(booking) ? "Radera" : "Avboka")
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    //Anpassning till liten skärm - visar varje bokning i en egen "kort" layout
+    <div class="booking-list-mobile">
+        @foreach (var booking in Bookings)
+        {
+            <div class="booking-mobile-card">
+                <div class="booking-mobile-row">
+                    <span class="booking-mobile-label">Rum</span>
+                    <span>@booking.RoomName</span>
+                </div>
+
+                @if (ShowUserColumn)
+                {
+                    <div class="booking-mobile-row">
+                        <span class="booking-mobile-label">Användare</span>
+                        <span>@booking.UserName</span>
+                    </div>
                 }
-            </tbody>
-        </table>
+
+                <div class="booking-mobile-row">
+                    <span class="booking-mobile-label">Datum</span>
+                    <span>@booking.Date.ToString("yyyy-MM-dd")</span>
+                </div>
+
+                <div class="booking-mobile-row">
+                    <span class="booking-mobile-label">Tid</span>
+                    <span>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</span>
+                </div>
+
+                <div class="booking-mobile-row">
+                    <span class="booking-mobile-label">Syfte</span>
+                    <span>@booking.Purpose</span>
+                </div>
+
+                <div class="booking-mobile-actions">
+                    <button class="btn btn-secondary btn-sm"
+                            disabled="@IsBookingPassed(booking)"
+                            @onclick="() => EditClicked(booking.Id)">
+                        Ändra
+                    </button>
+
+                    <button class="btn btn-danger btn-sm"
+                            @onclick="() => DeleteClicked(booking.Id)">
+                        @(IsBookingPassed(booking) ? "Radera" : "Avboka")
+                    </button>
+                </div>
+            </div>
+        }
     </div>
 }
 

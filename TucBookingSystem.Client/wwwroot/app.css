@@ -127,7 +127,7 @@ h1:focus {
 }
 
 .booking-table-wrapper {
-    overflow-x: auto;
+    width: 100%;
 }
 
 .booking-table {
