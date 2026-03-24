@@ -3,108 +3,108 @@
 @inject TucBookingSystem.Client.Services.RoomService RoomService
 @inject NavigationManager NavigationManager
 
-<h3>Rum</h3>
+<div class="rooms-page">
+    <h3 class="rooms-title">Rum</h3>
 
-@if (isLoading)
-{
-    <p>Laddar rum...</p>
-}
-else if (!string.IsNullOrWhiteSpace(errorMessage))
-{
-    <p class="text-danger">@errorMessage</p>
-}
-else if (rooms.Count == 0)
-{
-    <p>Inga rum hittades.</p>
-}
-else
-{
-    @* Mobil: kort-layout *@
-    <div class="d-md-none">
-        @foreach (var room in rooms)
-        {
-            <div class="card mb-3 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">@room.Name</h5>
+    @if (isLoading)
+    {
+        <p class="rooms-state">Laddar rum...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <p class="rooms-state text-danger">@errorMessage</p>
+    }
+    else if (rooms.Count == 0)
+    {
+        <p class="rooms-state">Inga rum hittades.</p>
+    }
+    else
+    {
+        <div class="room-grid d-md-none">
+            @foreach (var room in rooms)
+            {
+                <div class="card room-card">
+                    <div class="card-body">
+                        <h5 class="card-title">@room.Name</h5>
 
-                    <p class="card-text mb-1">
-                        <strong>Plats:</strong> @room.Location
-                    </p>
-
-                    <p class="card-text mb-1">
-                        <strong>Kapacitet:</strong> @room.Capacity
-                    </p>
-
-                    <p class="card-text mb-2">
-                        <strong>Status:</strong> @(room.IsActive ? "Aktiv" : "Ej aktiv")
-                    </p>
-
-                    @if (!string.IsNullOrWhiteSpace(room.Description))
-                    {
-                        <p class="card-text text-muted small">
-                            @room.Description
+                        <p class="card-text mb-1">
+                            <strong>Plats:</strong> @room.Location
                         </p>
-                    }
 
-                    @if (room.IsActive)
-                    {
-                        <button class="btn btn-primary w-100"
-                                @onclick="() => GoToBooking(room.Id)">
-                            Boka
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-secondary w-100" disabled>
-                            Ej bokningsbart
-                        </button>
-                    }
+                        <p class="card-text mb-1">
+                            <strong>Kapacitet:</strong> @room.Capacity
+                        </p>
+
+                        <p class="card-text mb-2">
+                            <strong>Status:</strong> @(room.IsActive ? "Aktiv" : "Ej aktiv")
+                        </p>
+
+                        @if (!string.IsNullOrWhiteSpace(room.Description))
+                        {
+                            <p class="card-text text-muted small">
+                                @room.Description
+                            </p>
+                        }
+
+                        @if (room.IsActive)
+                        {
+                            <button class="btn btn-primary w-100"
+                                    @onclick="() => GoToBooking(room.Id)">
+                                Boka
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary w-100" disabled>
+                                Ej bokningsbart
+                            </button>
+                        }
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
 
-    @* Tablet/dator: tabell *@
-    <div class="d-none d-md-block">
-        <table class="table table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Namn</th>
-                    <th>Plats</th>
-                    <th>Kapacitet</th>
-                    <th class="d-none d-lg-table-cell">Beskrivning</th>
-                    <th>Aktiv</th>
-                    <th>Boka</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var room in rooms)
-                {
+        <div class="d-none d-md-block rooms-table-wrap">
+            <table class="table rooms-table align-middle">
+                <thead>
                     <tr>
-                        <td>@room.Name</td>
-                        <td>@room.Location</td>
-                        <td>@room.Capacity</td>
-                        <td class="d-none d-lg-table-cell">@room.Description</td>
-                        <td>@(room.IsActive ? "Ja" : "Nej")</td>
-                        <td>
-                            @if (room.IsActive)
-                            {
-                                <button class="btn btn-primary btn-sm"
-                                        @onclick="() => GoToBooking(room.Id)">
-                                    Boka
-                                </button>
-                            }
-                            else
-                            {
-                                <span class="text-muted">Ej bokningsbart</span>
-                            }
-                        </td>
+                        <th>Namn</th>
+                        <th>Plats</th>
+                        <th>Kapacitet</th>
+                        <th class="d-none d-lg-table-cell">Beskrivning</th>
+                        <th>Aktiv</th>
+                        <th>Boka</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+                </thead>
+                <tbody>
+                    @foreach (var room in rooms)
+                    {
+                        <tr>
+                            <td>@room.Name</td>
+                            <td>@room.Location</td>
+                            <td>@room.Capacity</td>
+                            <td class="d-none d-lg-table-cell">@room.Description</td>
+                            <td>@(room.IsActive ? "Ja" : "Nej")</td>
+                            <td>
+                                @if (room.IsActive)
+                                {
+                                    <button class="btn btn-primary btn-sm"
+                                            @onclick="() => GoToBooking(room.Id)">
+                                        Boka
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="status-muted">Ej bokningsbart</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
 
 @code {
     private List<RoomDto> rooms = new();

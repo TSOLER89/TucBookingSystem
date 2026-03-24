@@ -1,70 +1,74 @@
 .profile-page {
-    max-width: 800px;
+    max-width: 900px;
     margin: 2rem auto;
-    padding: 2rem;
+    padding: 1rem;
 }
 
 .profile-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(180deg, rgba(26, 35, 64, 0.98) 0%, rgba(13, 17, 23, 0.98) 100%);
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.24);
     overflow: hidden;
 }
 
 .profile-header {
-    background: linear-gradient(135deg, #2E354F 0%, #5a4a6f 100%);
-    color: white;
+    background:
+        radial-gradient(circle at top, rgba(222, 39, 36, 0.22), transparent 36%),
+        linear-gradient(135deg, #1e2a4a 0%, #0d1117 100%);
+    color: #fff;
     padding: 3rem 2rem;
     text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .profile-avatar {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: #F9BEAE;
+    background: linear-gradient(135deg, #de2724 0%, #f25551 100%);
     margin: 0 auto 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
 .avatar-initial {
     font-size: 3rem;
-    font-weight: 700;
-    color: #2E354F;
+    font-weight: 800;
+    color: #fff;
 }
 
 .profile-header h2 {
     font-size: 2rem;
     margin-bottom: 0.5rem;
-    color: white;
+    color: #fff;
 }
 
 .user-email {
     font-size: 1rem;
-    color: #F9BEAE;
-    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.72);
 }
 
 .profile-section {
     padding: 2rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .profile-section h3 {
-    color: #2E354F;
+    color: #fff;
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .info-item {
     display: flex;
     justify-content: space-between;
+    gap: 1rem;
     padding: 1rem 0;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .info-item:last-child {
@@ -73,22 +77,23 @@
 
 .info-item label {
     font-weight: 600;
-    color: #666;
+    color: rgba(255, 255, 255, 0.68);
     font-size: 0.95rem;
 }
 
 .info-item span {
-    color: #2E354F;
+    color: #fff;
     font-weight: 500;
 }
 
 .role-badge {
-    background: #F9BEAE;
-    color: #2E354F;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
+    background: rgba(222, 39, 36, 0.14);
+    color: #fff;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
+    border: 1px solid rgba(222, 39, 36, 0.28);
 }
 
 .profile-actions {
@@ -100,28 +105,28 @@
 }
 
 .action-button {
-    background: #2E354F;
-    color: white;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
     padding: 1rem 2rem;
-    border-radius: 8px;
+    border-radius: 12px;
     text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
+    font-weight: 700;
+    transition: all 0.2s ease;
     display: inline-block;
-    border: 2px solid #2E354F;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .action-button:hover {
-    background: #F9BEAE;
-    color: #2E354F;
-    border-color: #F9BEAE;
+    background: rgba(222, 39, 36, 0.16);
+    color: #fff;
+    border-color: rgba(222, 39, 36, 0.35);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(46, 53, 79, 0.2);
+    box-shadow: 0 14px 30px rgba(184, 31, 29, 0.18);
 }
 
 @media (max-width: 768px) {
     .profile-page {
-        padding: 1rem;
+        padding: 0;
     }
 
     .profile-header {

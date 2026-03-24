@@ -12,13 +12,13 @@
         <p>Boka grupprum och resurser enkelt och snabbt.</p>
 
         <div class="hero-buttons">
-            <NavLink href="/bookings" class="btn-primary">
+            <a href="/bookings" class="btn-primary">
                 Boka rum
-            </NavLink>
+            </a>
 
-            <NavLink href="/rooms" class="btn-secondary">
+            <a href="/rooms" class="btn-secondary">
                 Visa rum
-            </NavLink>
+            </a>
         </div>
 
         @if (UserState.IsLoggedIn)
@@ -60,129 +60,3 @@
         UserState.OnChange -= StateHasChanged;
     }
 }
-
-<style>
-    .hero {
-        background: linear-gradient(rgba(46,53,79,0.82), rgba(20,20,30,0.86)), url('/tuc.png') center/cover no-repeat;
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: #F9BEAE;
-        border-radius: 12px;
-        padding: 2rem;
-    }
-
-    .hero-content h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: white;
-    }
-
-    .hero-content p {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-        color: #F9BEAE;
-    }
-
-    .hero-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-bottom: 2rem;
-    }
-
-        .hero-buttons a {
-            text-decoration: none;
-            display: inline-block;
-        }
-
-    .btn-primary {
-        background: #F9BEAE;
-        color: #2E354F;
-        border: none;
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: opacity 0.2s;
-    }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            color: #2E354F;
-        }
-
-    .btn-secondary {
-        background: transparent;
-        color: #F9BEAE;
-        border: 2px solid #F9BEAE;
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-        .btn-secondary:hover {
-            background: rgba(249,190,174,0.1);
-            color: #F9BEAE;
-        }
-
-    .btn-login {
-        background: #DE2724;
-        color: white;
-        border: none;
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: opacity 0.2s;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-        .btn-login:hover {
-            opacity: 0.85;
-            color: white;
-        }
-
-    .login-prompt {
-        margin-top: 1rem;
-    }
-
-    .welcome-message {
-        margin-top: 1rem;
-        color: white;
-    }
-
-        .welcome-message p {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: #F9BEAE;
-        }
-
-    .btn-profile {
-        background: #F9BEAE;
-        color: #2E354F;
-        border: none;
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: opacity 0.2s;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-        .btn-profile:hover {
-            opacity: 0.9;
-            color: #2E354F;
-        }
-</style>

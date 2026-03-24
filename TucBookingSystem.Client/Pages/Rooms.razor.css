@@ -1,0 +1,75 @@
+.rooms-page {
+    padding: 1.5rem;
+    color: #d2cdc8;
+}
+
+.rooms-title {
+    margin-bottom: 1.5rem;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.rooms-state {
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.room-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.room-card {
+    background: linear-gradient(180deg, rgba(39, 52, 74, 0.96) 0%, rgba(24, 33, 48, 0.96) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    color: #d2cdc8;
+}
+
+.room-card .card-title {
+    color: #fff;
+    font-weight: 700;
+}
+
+.room-card .card-text,
+.room-card .text-muted {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.rooms-table-wrap {
+    overflow-x: auto;
+    background: linear-gradient(180deg, rgba(39, 52, 74, 0.96) 0%, rgba(24, 33, 48, 0.96) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.rooms-table {
+    margin-bottom: 0;
+    color: #d2cdc8;
+}
+
+.rooms-table thead th {
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.rooms-table td {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: transparent;
+}
+
+.rooms-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.status-muted {
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 600;
+}
