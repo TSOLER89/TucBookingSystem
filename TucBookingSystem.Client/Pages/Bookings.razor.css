@@ -1,17 +1,33 @@
 ﻿.booking-page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 1rem;
+    padding: var(--space-page);
     box-sizing: border-box;
 }
 
 .booking-card {
     min-width: 0;
     overflow: hidden;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-card);
+    box-shadow: var(--shadow-card);
 }
 
-.booking-title,
+.booking-title {
+    font-size: var(--fs-h1);
+    font-weight: 800;
+    color: var(--text-strong);
+    margin-bottom: 0.75rem;
+    word-break: break-word;
+}
+
 .booking-subtitle {
+    font-size: var(--fs-h2);
+    font-weight: 600;
+    color: var(--text-strong);
+    margin-bottom: 1rem;
     word-break: break-word;
 }
 
@@ -28,35 +44,14 @@
         padding: 0.75rem;
     }
 
-    .booking-title {
-        font-size: 1.6rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .booking-subtitle {
-        font-size: 1.15rem;
-    }
-
     .booking-card {
         padding: 1rem;
-        border-radius: 14px;
+        border-radius: 16px;
     }
-
-        .booking-card .btn {
-            width: 100%;
-        }
 }
 
 @media (max-width: 576px) {
     .booking-page {
         padding: 0.5rem;
-    }
-
-    .booking-title {
-        font-size: 1.35rem;
-    }
-
-    .booking-subtitle {
-        font-size: 1rem;
     }
 }
