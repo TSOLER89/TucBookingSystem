@@ -1,0 +1,301 @@
+@page "/calendar"
+@rendermode InteractiveServer
+@using TucBookingSystem.Shared.DTOs
+@using System.Globalization
+@inject TucBookingSystem.Client.Services.RoomService RoomService
+@inject TucBookingSystem.Client.Services.BookingService BookingService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Kalender</PageTitle>
+
+<div class="calendar-page">
+    <h3 class="calendar-title">Kalender</h3>
+
+    @if (isLoading)
+    {
+        <p class="calendar-loading">Laddar rum...</p>
+    }
+    else
+    {
+        <div class="card p-3 mb-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-sm-5">
+                    <label for="roomSelect" class="form-label fw-semibold">Välj rum</label>
+                    <select id="roomSelect" class="form-select" @bind="selectedRoomId" @bind:after="LoadWeekAsync">
+                        <option value="0">-- Välj rum --</option>
+                        @foreach (var room in rooms.Where(r => r.IsActive))
+                        {
+                            <option value="@room.Id">@room.Name (@room.Location)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-sm-7 d-flex align-items-center gap-2 flex-wrap">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="PreviousWeek">&larr; Föregående</button>
+                    <span class="week-label fw-semibold">
+                        Vecka @currentWeekNumber &middot;
+                        @weekStart.ToString("d MMM", new CultureInfo("sv-SE")) &ndash;
+                        @weekStart.AddDays(4).ToString("d MMM yyyy", new CultureInfo("sv-SE"))
+                    </span>
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="NextWeek">Nästa &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        @if (selectedRoomId == 0)
+        {
+            <div class="alert alert-info">Välj ett rum för att se bokningskalendern.</div>
+        }
+        else if (isLoadingWeek)
+        {
+            <p class="calendar-loading">Laddar bokningar...</p>
+        }
+        else
+        {
+            <div class="mb-3">
+                <button class="btn btn-primary btn-sm" @onclick="FindFirstAvailableSlot">
+                    &#128269; Hämta första lediga tid
+                </button>
+                @if (!string.IsNullOrEmpty(firstAvailableMessage))
+                {
+                    <span class="ms-3 text-success fw-semibold">@firstAvailableMessage</span>
+                }
+            </div>
+
+            @* Mobile: single day card view *@
+            <div class="d-md-none">
+                <div class="day-nav mb-2">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        var day = weekStart.AddDays(i);
+                        var hasBooking = DayHasBooking(day);
+                        var isSelected = day == selectedDay;
+                        <button class="day-nav-btn @(isSelected ? "day-nav-selected" : "")"
+                                @onclick="() => selectedDay = day">
+                            <span class="day-nav-label">@day.ToString("ddd", new CultureInfo("sv-SE"))</span>
+                            <span class="day-nav-date">@day.ToString("d/M")</span>
+                            @if (hasBooking) { <span class="booking-dot"></span> }
+                        </button>
+                    }
+                </div>
+
+                <div class="fw-semibold mb-2">
+                    @selectedDay.ToString("dddd d MMMM", new CultureInfo("sv-SE"))
+                    @if (IsToday(selectedDay)) { <span class="badge bg-primary ms-1">Idag</span> }
+                </div>
+
+                @foreach (var slot in timeSlots)
+                {
+                    var booked = IsSlotBooked(selectedDay, slot);
+                    var past   = IsPastSlot(selectedDay, slot);
+
+                    <div class="mobile-slot @(booked ? "mobile-slot-booked" : past ? "mobile-slot-past" : "mobile-slot-free")"
+                         @onclick="() => { if (!booked && !past) NavigateToBooking(selectedDay, slot); }">
+                        <span class="mobile-slot-time">@slot.ToString("HH:mm")</span>
+                        <span class="mobile-slot-status">
+                            @if (booked)      { <text>Bokad</text> }
+                            else if (past)    { <text>–</text> }
+                            else              { <text>Ledig</text> }
+                        </span>
+                    </div>
+                }
+            </div>
+
+            @* Desktop: full week table *@
+            <div class="d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-bordered calendar-table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="time-col">Tid</th>
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    var day = weekStart.AddDays(i);
+                                    <th class="@(IsToday(day) ? "today-col" : "")">
+                                        @day.ToString("ddd d/M", new CultureInfo("sv-SE"))
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var slot in timeSlots)
+                            {
+                                <tr>
+                                    <td class="time-col">@slot.ToString("HH:mm")</td>
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        var day    = weekStart.AddDays(i);
+                                        var booked = IsSlotBooked(day, slot);
+                                        var past   = IsPastSlot(day, slot);
+
+                                        @if (!booked && !past)
+                                        {
+                                            <td class="slot-free slot-clickable"
+                                                title="Klicka för att boka"
+                                                @onclick="() => NavigateToBooking(day, slot)">
+                                                <span class="slot-label">Ledig</span>
+                                            </td>
+                                        }
+                                        else if (booked)
+                                        {
+                                            <td class="slot-booked">
+                                                <span class="slot-label">Bokad</span>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="slot-past"></td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-2 flex-wrap">
+                <span class="legend-item legend-free">Ledig</span>
+                <span class="legend-item legend-booked">Bokad</span>
+                <span class="legend-item legend-past">Passerad</span>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<RoomDto> rooms = new();
+    private int selectedRoomId;
+    private DateOnly weekStart;
+    private DateOnly selectedDay;
+    private bool isLoading = true;
+    private bool isLoadingWeek;
+    private string firstAvailableMessage = string.Empty;
+
+    private static readonly TimeOnly OpeningTime = new(8, 0);
+    private static readonly TimeOnly ClosingTime  = new(20, 0);
+    private const int SlotDurationMinutes = 30;
+
+    private readonly List<TimeOnly> timeSlots = new();
+    private readonly Dictionary<DateOnly, List<BookingDto>> bookingsByDay = new();
+
+    private int currentWeekNumber =>
+        ISOWeek.GetWeekOfYear(weekStart.ToDateTime(TimeOnly.MinValue));
+
+    protected override async Task OnInitializedAsync()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        weekStart   = GetMondayOfWeek(today);
+        selectedDay = today.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
+            ? weekStart
+            : today;
+
+        GenerateTimeSlots();
+
+        try
+        {
+            rooms = await RoomService.GetRoomsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not load rooms: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GenerateTimeSlots()
+    {
+        var slot = OpeningTime;
+        while (slot < ClosingTime)
+        {
+            timeSlots.Add(slot);
+            slot = slot.AddMinutes(SlotDurationMinutes);
+        }
+    }
+
+    private async Task LoadWeekAsync()
+    {
+        if (selectedRoomId == 0) return;
+
+        isLoadingWeek = true;
+        firstAvailableMessage = string.Empty;
+        bookingsByDay.Clear();
+
+        var days  = Enumerable.Range(0, 5).Select(i => weekStart.AddDays(i));
+        var tasks = days.Select(async day =>
+        {
+            var bookings = await BookingService.GetBookingsByRoomAndDateAsync(selectedRoomId, day);
+            return (day, bookings);
+        });
+
+        foreach (var (day, bookings) in await Task.WhenAll(tasks))
+            bookingsByDay[day] = bookings;
+
+        isLoadingWeek = false;
+    }
+
+    private void FindFirstAvailableSlot()
+    {
+        firstAvailableMessage = string.Empty;
+
+        for (int i = 0; i < 5; i++)
+        {
+            var day = weekStart.AddDays(i);
+            foreach (var slot in timeSlots)
+            {
+                if (!IsSlotBooked(day, slot) && !IsPastSlot(day, slot))
+                {
+                    selectedDay = day;
+                    firstAvailableMessage =
+                        $"{day.ToString("ddd d MMM", new CultureInfo("sv-SE"))} kl. {slot:HH:mm}";
+                    return;
+                }
+            }
+        }
+
+        firstAvailableMessage = "Inga lediga tider denna vecka.";
+    }
+
+    private bool IsSlotBooked(DateOnly day, TimeOnly slot)
+    {
+        if (!bookingsByDay.TryGetValue(day, out var bookings)) return false;
+        return bookings.Any(b => b.StartTime <= slot && b.EndTime > slot);
+    }
+
+    private bool DayHasBooking(DateOnly day)
+    {
+        if (!bookingsByDay.TryGetValue(day, out var bookings)) return false;
+        return bookings.Count > 0;
+    }
+
+    private bool IsPastSlot(DateOnly day, TimeOnly slot) =>
+        day.ToDateTime(slot) < DateTime.Now;
+
+    private bool IsToday(DateOnly day) =>
+        day == DateOnly.FromDateTime(DateTime.Today);
+
+    private void NavigateToBooking(DateOnly day, TimeOnly startTime) =>
+        NavigationManager.NavigateTo($"/bookings?roomId={selectedRoomId}");
+
+    private async Task PreviousWeek()
+    {
+        weekStart   = weekStart.AddDays(-7);
+        selectedDay = weekStart;
+        await LoadWeekAsync();
+    }
+
+    private async Task NextWeek()
+    {
+        weekStart   = weekStart.AddDays(7);
+        selectedDay = weekStart;
+        await LoadWeekAsync();
+    }
+
+    private static DateOnly GetMondayOfWeek(DateOnly date)
+    {
+        int diff = ((int)date.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
+        return date.AddDays(-diff);
+    }
+}
