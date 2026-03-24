@@ -1,0 +1,186 @@
+.calendar-page {
+    padding: 0;
+}
+
+.calendar-title {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.calendar-loading {
+    color: #666;
+    font-style: italic;
+}
+
+.week-label {
+    font-size: 0.9rem;
+}
+
+/* ── Day navigator (mobile) ── */
+
+.day-nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.day-nav-btn {
+    flex: 1;
+    min-width: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 4px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: #f8f9fa;
+    cursor: pointer;
+    position: relative;
+    font-size: 0.78rem;
+    transition: background-color 0.15s ease;
+}
+
+.day-nav-btn:hover {
+    background: #e9ecef;
+}
+
+.day-nav-selected {
+    background: #0d6efd !important;
+    color: #fff !important;
+    border-color: #0d6efd !important;
+}
+
+.day-nav-label {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.day-nav-date {
+    font-size: 0.72rem;
+    opacity: 0.85;
+}
+
+.booking-dot {
+    width: 7px;
+    height: 7px;
+    background-color: #dc3545;
+    border-radius: 50%;
+    margin-top: 3px;
+}
+
+.day-nav-selected .booking-dot {
+    background-color: #fff;
+}
+
+/* ── Mobile slot cards ── */
+
+.mobile-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.mobile-slot-free {
+    background-color: #d1e7dd;
+    cursor: pointer;
+    border: 1px solid #a3cfbb;
+}
+
+.mobile-slot-free:hover {
+    background-color: #a3cfbb;
+    transition: background-color 0.15s ease;
+}
+
+.mobile-slot-booked {
+    background-color: #f8d7da;
+    border: 1px solid #f1aeb5;
+    cursor: default;
+}
+
+.mobile-slot-past {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    cursor: default;
+    color: #adb5bd;
+}
+
+.mobile-slot-time {
+    font-weight: 600;
+}
+
+.mobile-slot-status {
+    font-size: 0.8rem;
+}
+
+/* ── Desktop table ── */
+
+.calendar-table {
+    font-size: 0.85rem;
+    min-width: 600px;
+}
+
+.time-col {
+    width: 60px;
+    font-weight: 600;
+    white-space: nowrap;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.today-col {
+    background-color: #cfe2ff !important;
+}
+
+.slot-free {
+    background-color: #d1e7dd;
+    text-align: center;
+}
+
+.slot-clickable {
+    cursor: pointer;
+}
+
+.slot-clickable:hover {
+    background-color: #a3cfbb !important;
+    transition: background-color 0.15s ease;
+}
+
+.slot-booked {
+    background-color: #f8d7da;
+    text-align: center;
+}
+
+.slot-past {
+    background-color: #e9ecef;
+}
+
+.slot-label {
+    font-size: 0.75rem;
+    color: #495057;
+}
+
+/* ── Legend ── */
+
+.legend-item {
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    border: 1px solid #dee2e6;
+}
+
+.legend-free {
+    background-color: #d1e7dd;
+}
+
+.legend-booked {
+    background-color: #f8d7da;
+}
+
+.legend-past {
+    background-color: #e9ecef;
+}
