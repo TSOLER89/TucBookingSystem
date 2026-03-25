@@ -1,11 +1,11 @@
 @page "/bookings"
-@attribute [Authorize]
-@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components
 @using TucBookingSystem.Client.Components.Shared
 @using TucBookingSystem.Shared.DTOs
 @inject TucBookingSystem.Client.Services.BookingService BookingService
 @inject TucBookingSystem.Client.Services.RoomService RoomService
+@inject NavigationManager NavigationManager
+@inject TucBookingSystem.Client.Services.UserStateService UserState
 
 <PageTitle>Bokningar</PageTitle>
 
@@ -114,6 +114,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await UserState.LoadStateAsync();
+
+        if (!UserState.IsLoggedIn)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
         await LoadData();
     }
 

@@ -44,39 +44,37 @@
 			</NavLink>
 		</div>
 
-		<AuthorizeView Roles="Admin">
-			<Authorized>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="admin">
-						<i class="bi bi-shield-fill-check nav-icon"></i> Admin
-					</NavLink>
-				</div>
-			</Authorized>
-		</AuthorizeView>
+		@if (UserState.IsAdmin)
+		{
+			<div class="nav-item px-3">
+				<NavLink class="nav-link" href="admin">
+					<i class="bi bi-shield-fill-check nav-icon"></i> Admin
+				</NavLink>
+			</div>
+		}
 
-		<AuthorizeView>
-			<Authorized>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="min-profil">
-						<i class="bi bi-person-fill nav-icon"></i> Min profil
-					</NavLink>
-				</div>
-			</Authorized>
-		</AuthorizeView>
+		@if (UserState.IsLoggedIn)
+		{
+			<div class="nav-item px-3">
+				<NavLink class="nav-link" href="min-profil">
+					<i class="bi bi-person-fill nav-icon"></i> Min profil
+				</NavLink>
+			</div>
+		}
 
 		<div class="nav-item px-3 logout-item">
-			<AuthorizeView>
-				<Authorized>
-					<button class="nav-link logout-btn" @onclick="Logout">
-						<i class="bi bi-box-arrow-right nav-icon"></i> Logga ut
-					</button>
-				</Authorized>
-				<NotAuthorized>
-					<button class="nav-link logout-btn" @onclick="Login">
-						<i class="bi bi-box-arrow-in-right nav-icon"></i> Logga in
-					</button>
-				</NotAuthorized>
-			</AuthorizeView>
+			@if (UserState.IsLoggedIn)
+			{
+				<button class="nav-link logout-btn" @onclick="Logout">
+					<i class="bi bi-box-arrow-right nav-icon"></i> Logga ut
+				</button>
+			}
+			else
+			{
+				<button class="nav-link logout-btn" @onclick="Login">
+					<i class="bi bi-box-arrow-in-right nav-icon"></i> Logga in
+				</button>
+			}
 		</div>
 	</nav>
 </div>

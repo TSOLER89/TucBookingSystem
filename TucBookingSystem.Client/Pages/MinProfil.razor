@@ -1,9 +1,8 @@
 @page "/min-profil"
-@attribute [Authorize]
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.Authorization
 @using TucBookingSystem.Client.Services
 @inject UserStateService UserState
+@inject NavigationManager Nav
 
 <div class="profile-page">
     <div class="profile-container">
@@ -32,19 +31,24 @@
         </div>
 
         <div class="profile-actions">
-            <a href="/bookings" class="action-button">Mina bokningar</a>
-            <a href="/rooms" class="action-button">Boka rum</a>
-            <AuthorizeView Roles="Admin">
-                <Authorized>
-                    <a href="/admin" class="action-button">Admin sida</a>
-                </Authorized>
-            </AuthorizeView>
+            <a href="/bookings" class="action-button">
+                Mina Bokningar
+            </a>
+            <a href="/rooms" class="action-button">
+                Boka Rum
+            </a>
+            @if (UserState.IsAdmin)
+            {
+                <a href="/admin" class="action-button">
+                    Admin Sida
+                </a>
+            }
         </div>
     </div>
 </div>
 
 @code {
-    private bool _hasLoaded;
+    private bool _hasLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -52,7 +56,15 @@
         {
             await UserState.LoadStateAsync();
             _hasLoaded = true;
-            StateHasChanged();
+
+            if (!UserState.IsLoggedIn)
+            {
+                Nav.NavigateTo("/login");
+            }
+            else
+            {
+                StateHasChanged();
+            }
         }
     }
 
