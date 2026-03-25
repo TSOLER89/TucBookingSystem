@@ -59,6 +59,12 @@ h1 {
     font-size: var(--fs-h1);
 }
 
+h1:focus,
+h1:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 h2, h3 {
     font-size: var(--fs-h2);
 }
