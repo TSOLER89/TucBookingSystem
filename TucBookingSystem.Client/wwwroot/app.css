@@ -104,6 +104,21 @@ textarea {
         color: rgba(255, 255, 255, 0.45);
     }
 
+    .form-control:disabled,
+    .form-select:disabled,
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+select option,
+select optgroup {
+    background: #223047;
+    color: #ffffff;
+}
+
     .form-control:focus,
     .form-select:focus,
     input:focus,
@@ -208,4 +223,26 @@ textarea {
     .btn {
         width: 100%;
     }
+}
+
+#blazor-error-ui {
+    display: none;
+    background: rgba(24, 33, 48, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    bottom: 0;
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.24);
+    color: #fff;
+    left: 0;
+    padding: 0.9rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .reload,
+#blazor-error-ui .dismiss {
+    color: var(--accent-soft);
+    cursor: pointer;
+    margin-left: 1rem;
+    text-decoration: none;
 }

@@ -1,22 +1,44 @@
 .calendar-page {
-    padding: 0;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: var(--space-page);
+    color: var(--text-main);
 }
 
 .calendar-title {
     margin-bottom: 1rem;
-    font-weight: 600;
+    font-size: var(--fs-h1);
+    font-weight: 800;
+    color: var(--text-strong);
 }
 
 .calendar-loading {
-    color: #666;
+    color: var(--text-muted);
     font-style: italic;
 }
 
 .week-label {
     font-size: 0.9rem;
+    color: var(--text-strong);
 }
 
-/* ── Day navigator (mobile) ── */
+.calendar-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.calendar-toolbar {
+    padding: var(--space-card);
+}
+
+.calendar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
 
 .day-nav {
     display: flex;
@@ -32,9 +54,10 @@
     flex-direction: column;
     align-items: center;
     padding: 6px 4px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--panel-border);
     border-radius: 8px;
-    background: #f8f9fa;
+    background: var(--surface-soft);
+    color: var(--text-main);
     cursor: pointer;
     position: relative;
     font-size: 0.78rem;
@@ -42,7 +65,7 @@
 }
 
 .day-nav-btn:hover {
-    background: #e9ecef;
+    background: var(--surface-soft-hover);
 }
 
 .day-nav-selected {
@@ -73,8 +96,6 @@
     background-color: #fff;
 }
 
-/* ── Mobile slot cards ── */
-
 .mobile-slot {
     display: flex;
     justify-content: space-between;
@@ -86,27 +107,27 @@
 }
 
 .mobile-slot-free {
-    background-color: #d1e7dd;
+    background-color: rgba(74, 222, 128, 0.16);
     cursor: pointer;
-    border: 1px solid #a3cfbb;
+    border: 1px solid var(--success-border);
 }
 
 .mobile-slot-free:hover {
-    background-color: #a3cfbb;
+    background-color: rgba(74, 222, 128, 0.24);
     transition: background-color 0.15s ease;
 }
 
 .mobile-slot-booked {
-    background-color: #f8d7da;
-    border: 1px solid #f1aeb5;
+    background-color: rgba(222, 39, 36, 0.16);
+    border: 1px solid var(--danger-border);
     cursor: default;
 }
 
 .mobile-slot-past {
-    background-color: #e9ecef;
-    border: 1px solid #dee2e6;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--panel-border);
     cursor: default;
-    color: #adb5bd;
+    color: rgba(255, 255, 255, 0.45);
 }
 
 .mobile-slot-time {
@@ -117,27 +138,31 @@
     font-size: 0.8rem;
 }
 
-/* ── Desktop table ── */
-
 .calendar-table {
     font-size: 0.85rem;
     min-width: 600px;
+    margin-bottom: 0;
+}
+
+.calendar-table td,
+.calendar-table th {
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .time-col {
     width: 60px;
     font-weight: 600;
     white-space: nowrap;
-    background-color: #f8f9fa;
+    background-color: rgba(255, 255, 255, 0.05);
     text-align: center;
 }
 
 .today-col {
-    background-color: #cfe2ff !important;
+    background-color: rgba(111, 143, 181, 0.28) !important;
 }
 
 .slot-free {
-    background-color: #d1e7dd;
+    background-color: rgba(74, 222, 128, 0.14);
     text-align: center;
 }
 
@@ -146,41 +171,55 @@
 }
 
 .slot-clickable:hover {
-    background-color: #a3cfbb !important;
+    background-color: rgba(74, 222, 128, 0.24) !important;
     transition: background-color 0.15s ease;
 }
 
 .slot-booked {
-    background-color: #f8d7da;
+    background-color: rgba(222, 39, 36, 0.14);
     text-align: center;
 }
 
 .slot-past {
-    background-color: #e9ecef;
+    background-color: rgba(255, 255, 255, 0.04);
 }
 
 .slot-label {
     font-size: 0.75rem;
-    color: #495057;
+    color: var(--text-strong);
 }
-
-/* ── Legend ── */
 
 .legend-item {
     padding: 3px 12px;
     border-radius: 4px;
     font-size: 0.8rem;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--panel-border);
 }
 
 .legend-free {
-    background-color: #d1e7dd;
+    background-color: rgba(74, 222, 128, 0.16);
 }
 
 .legend-booked {
-    background-color: #f8d7da;
+    background-color: rgba(222, 39, 36, 0.16);
 }
 
 .legend-past {
-    background-color: #e9ecef;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    .calendar-page {
+        padding: 0.75rem;
+    }
+
+    .calendar-toolbar {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .calendar-actions {
+        align-items: stretch;
+    }
 }
