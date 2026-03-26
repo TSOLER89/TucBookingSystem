@@ -309,7 +309,7 @@ Testa API:et interaktivt via Swagger:
 **TUC Booking System Development Team:**
 
 - **[Tsoler Hayitian](https://github.com/TSOLER89)** - Project Lead & Backend Developer
-- **[Jenny Khranovska](https://github.com/jennykhranovska)** - Database Developer
+- **[Jenny Khranovska](https://github.com/jennykhranovska)** - Frontend & Auth Developer
 - **[Aygen](https://github.com/AigennA)** - Backend Developer
 - **[Marachinos](https://github.com/Marachinos)** - Frontend Developer
 - **[Marika Romeo](https://github.com/MarikaRomeo)** - Full Stack Developer
