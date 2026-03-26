@@ -311,7 +311,7 @@ Testa API:et interaktivt via Swagger:
 - **[Tsoler Hayitian](https://github.com/TSOLER89)** - Project Lead & Backend Developer
 - **[Jenny Khranovska](https://github.com/jennykhranovska)** - Frontend & Auth Developer
 - **[Aygen](https://github.com/AigennA)** - Backend Developer
-- **[Marachinos](https://github.com/Marachinos)** - Frontend Developer
+- **[Sandra Jonsson](https://github.com/Marachinos)** - Frontend- & Database Developer
 - **[Marika Romeo](https://github.com/MarikaRomeo)** - Full Stack Developer
 
 
