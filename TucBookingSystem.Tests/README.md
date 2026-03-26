@@ -5,15 +5,14 @@ Detta projekt innehåller omfattande tester för TucBookingSystem API.
 ## 📋 Test Categories
 
 ### Unit Tests
-- **BookingServiceTests.cs** - Service layer logic för bokningar
-- **RoomServiceTests.cs** - Service layer logic för rum
-- **AuthServiceTests.cs** - Autentisering och användarhantering
-- **EmailServiceTests.cs** - Email-funktionalitet
+- **BookingServiceTests.cs** - Service layer logic för bokningar (14 tester)
+- **RoomServiceTests.cs** - Service layer logic för rum (4 tester)
+- **AuthServiceTests.cs** - Autentisering och användarhantering (4 tester)
+- **AuthStateProviderTests.cs** - Authentication state provider (5 tester)
 
 ### Repository Integration Tests (InMemory Database)
-- **BookingRepositoryIntegrationTests.cs** - Databasoperationer för bokningar
-- **RoomRepositoryIntegrationTests.cs** - Databasoperationer för rum
-- **UserRepositoryIntegrationTests.cs** - Databasoperationer för användare
+- **BookingRepositoryIntegrationTests.cs** - Databasoperationer för bokningar (7 tester)
+- **UserRepositoryIntegrationTests.cs** - Databasoperationer för användare (5 tester)
 
 ## 🛠️ Tech Stack
 
@@ -42,8 +41,11 @@ dotnet test --collect:"XPlat Code Coverage"
 ## 📊 Test Coverage
 
 Nuvarande test coverage inkluderar:
-- ✅ Services (BookingService, RoomService, AuthService, EmailService)
-- ✅ Repositories (BookingRepository, RoomRepository, UserRepository)
+- ✅ Services (BookingService, RoomService, AuthService)
+- ✅ Authentication (AuthStateProvider)
+- ✅ Repositories (BookingRepository, UserRepository)
+
+**Totalt:** 47 tester med 100% pass rate ✅
 
 ## 🎯 Test Patterns
 
@@ -97,6 +99,22 @@ Testerna körs automatiskt vid:
 - Push till main
 - Pull requests
 - Innan merge
+
+## 📈 Test Statistics
+
+- **Totalt:** 47 tester (100% passing ✅)
+
+**Unit Tests:** ~28 tester
+- BookingServiceTests: 14 tester
+- RoomServiceTests: 4 tester
+- AuthServiceTests: 4 tester
+- AuthStateProviderTests: 5 tester
+
+**Integration Tests:** ~19 tester
+- BookingRepositoryIntegrationTests: 7 tester
+- UserRepositoryIntegrationTests: 5 tester
+
+**Pass Rate:** 100% (47/47 tester passing) 🎉
 
 ## 👨‍💻 Författare
 

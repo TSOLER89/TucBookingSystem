@@ -20,8 +20,6 @@ dotnet ef database update
 
 **Sedan tryck F5 i Visual Studio och allt fungerar!** ✅
 
-Läs [SECRETS_SETUP.md](SECRETS_SETUP.md) för mer information.
-
 ---
 
 ## 🚀 Funktioner
@@ -81,11 +79,14 @@ cd TucBookingSystem
 
 2. **Setup secrets** (VIKTIGT!)
 ```bash
-# Följ instruktioner i SECRETS_SETUP.md
-dotnet user-secrets init --project TucBookingSystem.Api
-dotnet user-secrets set "Jwt:Key" "DIN_HEMLIGA_NYCKEL_32_TECKEN" --project TucBookingSystem.Api
-# ... osv
+cd TucBookingSystem.Api
+dotnet user-secrets init
+dotnet user-secrets set "Jwt:Key" "DettaArEnSuperHemligNyckelSomArMinst32Tecken12345!"
+dotnet user-secrets set "Jwt:Issuer" "TucBookingSystem"
+dotnet user-secrets set "Jwt:Audience" "TucBookingSystemUsers"
 ```
+
+**OBS:** För e-postfunktionalitet (glömt lösenord), se [Email-konfiguration](#-email-konfiguration-valfritt) nedan.
 
 3. **Kör migrations** (om nödvändigt)
 ```bash
@@ -122,16 +123,15 @@ Kör specifika tester:
 dotnet test --filter "FullyQualifiedName~BookingServiceTests"
 ```
 
-**Test Coverage:** 40 tester (95% pass rate)
-- **Unit Tests:** 24 tester
+**Test Coverage:** 47 tester (100% pass rate ✅)
+- **Unit Tests:** 27 tester
   - BookingServiceTests (14 tester) - inklusive helgvalidering
   - RoomServiceTests (4 tester)
   - AuthServiceTests (4 tester)
-  - AuthStateProviderTests (2 tester under development)
-- **Repository Integration Tests:** 11 tester
-  - BookingRepositoryIntegrationTests
-  - RoomRepositoryIntegrationTests  
-  - UserRepositoryIntegrationTests
+  - AuthStateProviderTests (5 tester)
+- **Repository Integration Tests:** 20 tester
+  - BookingRepositoryIntegrationTests (7 tester)
+  - UserRepositoryIntegrationTests (5 tester)
 
 **Testade funktioner:**
 - ✅ Bokningsvalidering (tid, datum, konflikt, helger)
@@ -203,12 +203,12 @@ TucBookingSystem/
 │   ├── RoomRepositoryIntegrationTests.cs
 │   └── UserRepositoryIntegrationTests.cs
 ├── setup.ps1                           # Automated setup script
-├── README.md                           # Detta dokument
-└── SECRETS_SETUP.md                    # Secrets configuration guide
+└── README.md                           # Detta dokument
 ```
 
 ## 🔐 Säkerhet
 
+### Säkerhetsåtgärder
 - **JWT Bearer Tokens** - Token-based authentication med 24h livslängd
 - **BCrypt Password Hashing** - Använder ASP.NET Identity PasswordHasher
 - **Role-based Authorization** - Admin och User roller
@@ -217,6 +217,43 @@ TucBookingSystem/
 - **Global Exception Handler** - Centraliserad felhantering utan att läcka känslig information
 - **.gitignore** - Databaser och secrets-filer exkluderas
 - **Email Validation** - Unique email constraint i databas
+
+### 📧 Email-konfiguration (Valfritt)
+
+För att aktivera "Glömt lösenord"-funktionen behöver du konfigurera email.
+
+#### Gmail (Rekommenderat för utveckling):
+
+1. **Aktivera 2-stegverifiering** på ditt Gmail-konto
+2. **Skapa ett App-lösenord:**
+   - Gå till: https://myaccount.google.com/apppasswords
+   - Välj "Mail" och "Windows Computer"
+   - Kopiera det genererade lösenordet (16 tecken)
+
+3. **Lägg till i User Secrets:**
+   ```bash
+   cd TucBookingSystem.Api
+   dotnet user-secrets set "Email:SmtpServer" "smtp.gmail.com"
+   dotnet user-secrets set "Email:SmtpPort" "587"
+   dotnet user-secrets set "Email:FromName" "TUC Booking System"
+   dotnet user-secrets set "Email:FromAddress" "din-email@gmail.com"
+   dotnet user-secrets set "Email:Username" "din-email@gmail.com"
+   dotnet user-secrets set "Email:Password" "xxxx xxxx xxxx xxxx"
+   ```
+
+#### Outlook/Hotmail:
+```bash
+dotnet user-secrets set "Email:SmtpServer" "smtp-mail.outlook.com"
+dotnet user-secrets set "Email:SmtpPort" "587"
+dotnet user-secrets set "Email:FromAddress" "din-email@outlook.com"
+dotnet user-secrets set "Email:Username" "din-email@outlook.com"
+dotnet user-secrets set "Email:Password" "ditt-lösenord"
+```
+
+#### Testning:
+- E-postfunktionaliteten är valfri för grundläggande användning
+- Systemet fungerar utan email-konfiguration, men "Glömt lösenord" kommer inte fungera
+- Felsökning: Kontrollera loggen i Visual Studio Output-fönstret om email inte skickas
 
 ## 📚 API Endpoints
 
@@ -267,20 +304,31 @@ Testa API:et interaktivt via Swagger:
 4. Push till branchen (`git push origin feature/AmazingFeature`)
 5. Öppna en Pull Request
 
-## 📝 License
-
-Detta projekt är utvecklat för TUC (Teknikcollege).
-
 ## 👥 Team
 
-TUC Booking System Development Team
+**TUC Booking System Development Team:**
+
+- **[Tsoler Hayitian](https://github.com/TSOLER89)** - Project Lead & Backend Developer
+- **[Jenny Khranovska](https://github.com/jennykhranovska)** - Database Developer
+- **[Aygen](https://github.com/AigennA)** - Backend Developer
+- **[Marachinos](https://github.com/Marachinos)** - Frontend Developer
+- **[Marika Romeo](https://github.com/MarikaRomeo)** - Full Stack Developer
+
+
+### 🎓 Om Projektet
+Detta projekt utvecklades som en del av utbildningen på **TUC (Teknikcollege)** under 2026.
 
 ## 📮 Support
 
 För frågor eller problem, öppna ett issue på GitHub.
 
+## 📝 License
+
+Detta projekt är utvecklat för **TUC (Teknikcollege)** som ett utbildningsprojekt.
+
 ---
 
 **Version:** 2.0.0  
-**Last Updated:** 2026-03-23
+**Last Updated:** 2026-03-26  
+**Utvecklat av TUC Booking System Team** ❤️
 
